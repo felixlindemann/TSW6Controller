@@ -1,0 +1,170 @@
+{
+  "info": {
+    "name": "TSW6 External Interface API",
+    "_postman_id": "d5c5f01b-9e8a-4a54-b6f1-1234567890ab",
+    "description": "Postman Collection for Train Sim World 6 External Interface API (v1.5)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Info",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "DTGCommKey",
+            "value": "{{DTGCommKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/info",
+          "host": ["{{baseUrl}}"],
+          "path": ["info"]
+        }
+      }
+    },
+    {
+      "name": "List All Endpoints",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "DTGCommKey",
+            "value": "{{DTGCommKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/list",
+          "host": ["{{baseUrl}}"],
+          "path": ["list"]
+        }
+      }
+    },
+    {
+      "name": "Get Throttle Notch",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "DTGCommKey",
+            "value": "{{DTGCommKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/get/CurrentDrivableActor/Throttle(Lever).Function.GetCurrentNotchIndex",
+          "host": ["{{baseUrl}}"],
+          "path": [
+            "get",
+            "CurrentDrivableActor",
+            "Throttle(Lever).Function.GetCurrentNotchIndex"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Set Throttle (50%)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "DTGCommKey",
+            "value": "{{DTGCommKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/set/VirtualRailDriver.Throttle?Value=0.5",
+          "host": ["{{baseUrl}}"],
+          "path": ["set", "VirtualRailDriver.Throttle"],
+          "query": [
+            {
+              "key": "Value",
+              "value": "0.5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Subscribe Speed + Brake",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "DTGCommKey",
+            "value": "{{DTGCommKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/subscription/CurrentDrivableActor.Function.HUD_GetSpeed",
+          "host": ["{{baseUrl}}"],
+          "path": [
+            "subscription",
+            "CurrentDrivableActor.Function.HUD_GetSpeed"
+          ],
+          "query": [
+            {
+              "key": "Subscription",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Read Subscription (ID=1)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "DTGCommKey",
+            "value": "{{DTGCommKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/subscription?Subscription=1",
+          "host": ["{{baseUrl}}"],
+          "path": ["subscription"],
+          "query": [
+            {
+              "key": "Subscription",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Set Weather Cloudiness",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "DTGCommKey",
+            "value": "{{DTGCommKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/set/WeatherManager.Cloudiness?Value=0.8",
+          "host": ["{{baseUrl}}"],
+          "path": ["set", "WeatherManager.Cloudiness"],
+          "query": [
+            {
+              "key": "Value",
+              "value": "0.8"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:31270"
+    },
+    {
+      "key": "DTGCommKey",
+      "value": "PUT-YOUR-KEY-HERE"
+    }
+  ]
+}

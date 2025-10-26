@@ -1,0 +1,21 @@
+{
+  "id": "b9a0f4c1-8f32-4b27-9a11-1234567890cd",
+  "name": "TSW6 Local Environment",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:31270",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "DTGCommKey",
+      "value": "PUT-YOUR-COMM-KEY-HERE",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2025-10-26T11:00:00Z",
+  "_postman_exported_using": "Postman/11.0"
+}
