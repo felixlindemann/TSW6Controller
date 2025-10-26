@@ -1,29 +1,29 @@
 /**
  * @file Button.cpp
- * @brief Implementation of the Button class.
+ * @brief Implementation of the debounced Button control.
  *
  * @details
- * Provides debouncing and edge detection logic for
- * digital input buttons with internal pull-up.
+ * Implements the Control interface.  Uses internal pull-up
+ * and returns 1.0 when pressed, 0.0 when released.
  *
- * @author Felix Lindemann
- * @date 2025-10-26
- * @version 1.0
- *
- * @copyright
- * This code is part of the TSW Controller Project.
- * Licensed under the MIT License.
+ * @author
+ *   Felix Lindemann
+ * @date
+ *   2025-10-28
+ * @version
+ *   2.0
  */
 
 #include "Button.h"
 
 // --- Constructor ---
-Button::Button(uint8_t gpio, unsigned int debounce)
-    : pin(gpio),
+Button::Button(const String& id, uint8_t gpio, unsigned int debounce)
+    : Control(id, gpio),
       debounceDelay(debounce),
       lastStableState(HIGH),
       lastReading(HIGH),
-      lastDebounceTime(0) {}
+      lastDebounceTime(0),
+      lastEvent(0) {}
 
 // --- Initialization ---
 void Button::begin() {
@@ -33,10 +33,10 @@ void Button::begin() {
   lastDebounceTime = millis();
 }
 
-// --- Update method ---
-int Button::update() {
+// --- Update ---
+bool Button::update() {
   bool reading = digitalRead(pin);
-  int event = 0;
+  lastEvent = 0;
 
   if (reading != lastReading) {
     lastDebounceTime = millis();
@@ -46,13 +46,14 @@ int Button::update() {
   if ((millis() - lastDebounceTime) > debounceDelay) {
     if (lastStableState != lastReading) {
       lastStableState = lastReading;
-      event = (lastStableState == LOW) ? +1 : -1;
+      lastEvent = (lastStableState == LOW) ? +1 : -1;
+      return true;               // state changed
     }
   }
-
-  return event;
+  return false;                  // no change
 }
 
-// --- Accessors ---
-bool Button::isPressed() const { return lastStableState == LOW; }
-uint8_t Button::getPin() const { return pin; }
+// --- Value getter ---
+float Button::getValue() const {
+  return (lastStableState == LOW) ? 1.0f : 0.0f;
+}

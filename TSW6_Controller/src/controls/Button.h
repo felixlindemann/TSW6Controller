@@ -1,55 +1,48 @@
 /**
  * @file Button.h
- * @brief Debounced button class with edge event detection.
+ * @brief Digital push-button implementing the Control interface.
  *
  * @details
- * The Button class provides software debouncing and event detection
- * for simple digital push buttons. It detects transitions and returns:
- *   +1 → pressed  (rising edge: HIGH → LOW)
- *   -1 → released (falling edge: LOW → HIGH)
- *    0 → no change
+ * The Button class provides software debouncing and edge detection for
+ * digital inputs.  It reports transition events (+1 pressed, –1 released)
+ * and implements the common Control interface with a normalized
+ * value output (1 = pressed, 0 = released).
  *
- * The method isPressed() returns the current stable logical state.
- *
- * Notes:
- * - Uses internal pull-up (INPUT_PULLUP)
- * - Returns inverted logic (LOW = pressed)
- * - Designed for stable polling in loop() without interrupts
- *
- * Typical usage:
+ * Example:
  * @code
- *   Button fireButton(4);
- *   fireButton.begin();
- *   int event = fireButton.update();
- *   if (event == +1) Serial.println("Pressed");
- *   if (event == -1) Serial.println("Released");
+ *   Button sifa("BTN_SIFA", 7);
+ *   sifa.begin();
+ *   if (sifa.update())
+ *       Serial.println(sifa.getValue() > 0 ? "Pressed" : "Released");
  * @endcode
  *
- * @author Felix Lindemann
- * @date 2025-10-26
- * @version 1.0
- *
- * @copyright
- * This code is part of the TSW Controller Project.
- * Licensed under the MIT License.
+ * @author
+ *   Felix Lindemann
+ * @date
+ *   2025-10-28
+ * @version
+ *   2.0
  */
+
 #pragma once
 #include <Arduino.h>
+#include "Control.h"
 
-class Button {
+class Button : public Control {
 private:
-  uint8_t pin;                  // GPIO pin
-  bool lastStableState;         // last debounced state
-  bool lastReading;             // last raw reading
+  bool lastStableState;          // last debounced state
+  bool lastReading;              // last raw reading
   unsigned long lastDebounceTime;
-  unsigned int debounceDelay;   // debounce time in ms
+  unsigned int debounceDelay;    // debounce time [ms]
+  int lastEvent;                 // +1 pressed, –1 released, 0 none
 
 public:
-  explicit Button(uint8_t gpio, unsigned int debounce = 50);
+  explicit Button(const String& id, uint8_t gpio, unsigned int debounce = 50);
 
-  void begin();
-  int update();
+  void begin() override;
+  bool update() override;
+  float getValue() const override;   // 1.0 pressed / 0.0 released
 
-  bool isPressed() const;
-  uint8_t getPin() const;
+  bool isPressed() const { return lastStableState == LOW; }
+  int getEvent() const { return lastEvent; }
 };

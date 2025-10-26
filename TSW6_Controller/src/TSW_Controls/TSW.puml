@@ -1,0 +1,225 @@
+@startuml
+title TSW Controller – Class Architecture (v5 detailed)
+
+/' ========================
+   Base Hardware Layer
+   ======================== '/
+
+interface Control {
+  - controlId : String
+  - pin : uint8_t
+  --
+  + getId() : String
+  + getPin() : uint8_t
+  + begin() : void
+  + update() : bool
+  + getValue() : float
+}
+
+package ArduinoControls {
+
+class AnalogSlider {
+  - minValue : int
+  - maxValue : int
+  - zero : int
+  - lastValue : int
+  - lastRaw : int
+  - rawThreshold : int
+  - inverted : bool
+  - lastRead : unsigned long
+  - interval : unsigned long
+  --
+  + AnalogSlider(id : String, gpio : uint8_t)
+  + begin() : void
+  + update() : bool
+  + getValue() : float
+  + getRawValue() : int
+  + getPercentValue() : int
+  + setZero(z : int)
+  + setMinValue(v : int)
+  + setMaxValue(v : int)
+  + setInterval(i : unsigned long)
+  + setInverted(inv : bool)
+  + setRawThreshold(t : int)
+}
+
+class Button {
+  - lastStableState : bool
+  - lastReading : bool
+  - lastDebounceTime : unsigned long
+  - debounceDelay : unsigned int
+  - lastEvent : int
+  --
+  + Button(id : String, gpio : uint8_t, debounce : unsigned int = 50)
+  + begin() : void
+  + update() : bool
+  + getValue() : float
+  + isPressed() : bool
+  + getEvent() : int
+}
+
+class RotaryKnob {
+  - pinA : uint8_t
+  - pinB : uint8_t
+  - lastA : int
+  - lastB : int
+  - position : int
+  - lastEventTime : unsigned long
+  - debounce : unsigned long
+  - lastDelta : int
+  - minValue : float
+  - maxValue : float
+  --
+  + RotaryKnob(id : String, a : uint8_t, b : uint8_t, debounceMs : unsigned long = 2)
+  + begin() : void
+  + update() : bool
+  + getValue() : float
+  + getPosition() : int
+  + reset() : void
+  + getLastDelta() : int
+}
+
+class GamepadJoystick {
+  - xPin : uint8_t
+  - yPin : uint8_t
+  - xRaw, yRaw : int
+  - xZero, yZero : int
+  - xDeadZone, yDeadZone : int
+  - xThreshold, yThreshold : int
+  - xInverted, yInverted : bool
+  - lastRead : unsigned long
+  - interval : unsigned long
+  - buttonPressed, lastButtonPressed : bool
+  --
+  + GamepadJoystick(id : String, x : uint8_t, y : uint8_t, button : uint8_t)
+  + begin() : void
+  + update() : bool
+  + getValue() : float
+  + getXCentered() : int
+  + getYCentered() : int
+  + isPressed() : bool
+  + calibrateCenter() : void
+  + setXInverted(inv : bool)
+  + setYInverted(inv : bool)
+  + setInterval(i : unsigned long)
+}
+}
+
+package TSW {
+
+
+/' ========================
+   Mapping & Network Layer
+   ======================== '/
+
+class Notch {
+  + label : String
+  + tswValue : float
+  + rangeMin : int
+  + rangeMax : int
+}
+
+class NotchTable {
+  - controller : String
+  - positions : std::vector<Notch>
+  --
+  + loadFromFile(path : String) : bool
+  + loadFromArray(list : std::vector<Notch>) : bool
+  + hasPositions() : bool
+  + mapToTSW(percent : int) : float
+  + getControllerName() : String
+}
+
+class TSWSpider {
+  - host : String
+  - port : uint16_t
+  --
+  + begin(ip : String, port : uint16_t = 31270) : void
+  + setControllerValue(controller : String, value : float) : bool
+  + getControllerValue(controller : String) : float
+}
+
+
+
+/' ========================
+   TSW Application Layer
+   ======================== '/
+
+abstract class TSWControl {
+  - controllerName : String
+  - notches : NotchTable
+  - spider : TSWSpider*
+  - lastSentValue : float
+  --
+  + loadNotches(filePath : String) : void
+  + getControllerName() : String
+  # sendValueToTSW(tswValue : float) : void
+}
+
+class TSWLever {
+  + updateAndSend() : void
+}
+
+class TSWButton {
+  + updateAndSend() : void
+}
+
+class TSWRotaryKnob {
+  + updateAndSend() : void
+}
+
+class TSWGamePadControl {
+  - axisX : AnalogSlider
+  - axisY : AnalogSlider
+  - button : Button
+  - hasButton : bool
+  - notchX : NotchTable
+  - notchY : NotchTable
+  - buttonNotches : NotchTable
+  - controllerX : String
+  - controllerY : String
+  - controllerButton : String
+  --
+  + TSWGamePadControl(pinXA, pinXB, ctrlX, ctrlY, spider)
+  + TSWGamePadControl(pinXA, pinXB, pinBtn, ctrlX, ctrlY, ctrlBtn, spider)
+  + begin() : void
+  + loadNotchesX(file) : void
+  + loadNotchesY(file) : void
+  + loadButtonNotches(file) : void
+  + updateAndSend() : void
+}
+note left of TSWGamePadControl
+GamePad-style control combining:
+- two AnalogSliders for X/Y axes
+- optional NotchTables per axis
+- optional integrated button (default 0/1)
+end note
+
+}
+
+Control <|-down- AnalogSlider
+Control <|-down- Button
+Control <|-down- RotaryKnob
+Control <|-down- GamepadJoystick
+
+
+TSWControl <|-up- TSWLever
+TSWControl <|-up- TSWButton
+TSWControl <|-up- TSWRotaryKnob
+TSWControl <|-up- TSWGamePadControl
+
+TSWControl *-down- NotchTable
+TSWControl -down-> TSWSpider : uses 
+
+TSWLever -up-|> AnalogSlider
+TSWButton -up-|> Button
+TSWRotaryKnob -up-|> RotaryKnob
+TSWGamePadControl -up-|> GamepadJoystick
+
+TSWGamePadControl *-up- AnalogSlider : axisX / axisY
+TSWGamePadControl *-up- Button : optional
+TSWGamePadControl *-down- NotchTable : axis/button mappings
+
+NotchTable *-down- Notch
+
+@enduml
