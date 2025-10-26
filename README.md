@@ -1,3 +1,5 @@
+![Logo Oles Controller](https://raw.githubusercontent.com/felixlindemann/TSW6Controller/refs/heads/main/TSW6_Controller/data/logo_Ole_TSW.svg)
+
 # OLE-TSW Controller
 
 An open-source controller project for **Train Sim World (TSW)** built around the **ESP32 (Lolin32 Lite)** platform.  
