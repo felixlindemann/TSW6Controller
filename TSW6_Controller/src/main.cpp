@@ -11,8 +11,9 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
   Serial.println();
-  Serial.println("TSW Pico Booting...");
-  
+  Serial.print(DEVICE_NAME);
+  Serial.println(" Booting...");
+
 Serial.print("ESP32 SDK Version: ");
 Serial.println(ESP.getSdkVersion());
 Serial.print("Board: ");
