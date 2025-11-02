@@ -1,6 +1,6 @@
 #pragma once
-#define SETUP_BUTTON 15
-#define STATUS_LED 2
+#define SETUP_BUTTON 26
+#define STATUS_LED 22
 #define DNS_PORT 53
 
 #define MyIP "192.168.4.1"
