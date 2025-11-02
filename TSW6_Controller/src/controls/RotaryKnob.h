@@ -39,6 +39,9 @@ private:
 public:
   RotaryKnob(const String& id, uint8_t a, uint8_t b);
 
+  // --- Extended variant (with extra args for compatibility) ---
+  RotaryKnob(const String& id, uint8_t a, uint8_t b, int steps, float minVal, float maxVal);
+
   void begin() override;
   bool update() override;
   float getValue() const override;

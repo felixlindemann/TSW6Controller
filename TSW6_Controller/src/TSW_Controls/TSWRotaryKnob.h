@@ -17,29 +17,35 @@
  * @author
  *   Felix Lindemann
  * @date
- *   2025-10-28
+ *   2025-11-02
  * @version
- *   2.0
- */
+ *   2.1
+ */ 
 
 #pragma once
-#include "TSWControl.h"
+#include <Arduino.h>
 #include "../controls/RotaryKnob.h"
+#include "TSWControl.h"
 
 class TSWRotaryKnob : public RotaryKnob, public TSWControl {
 private:
-  float lastValue;
   float minValue;
   float maxValue;
-  float stepSize;
-  unsigned long lastSentTime;
-  unsigned long sendInterval;
+  float currentTSWValue;
 
 public:
-  TSWRotaryKnob(uint8_t pinA, uint8_t pinB, const String& ctrl, TSWSpider* s,
-                float minV = 0.0f, float maxV = 1.0f, float step = 0.05f,
-                unsigned long sendInt = 100);
+  // --- Constructors ---
+  TSWRotaryKnob(const String& id, uint8_t a, uint8_t b,
+                TSWSpider* spider, float minVal = 0.0f, float maxVal = 1.0f);
 
-  void loadNotches(const String& filePath);
+  // --- Legacy overload for backward compatibility ---
+  TSWRotaryKnob(const String& id, uint8_t a, uint8_t b,
+                int steps, float minVal, float maxVal);
+
+  // --- Lifecycle ---
+  void begin() override;
+  bool update() override;
+
+  // --- TSW mapping ---
   void updateAndSend();
 };
