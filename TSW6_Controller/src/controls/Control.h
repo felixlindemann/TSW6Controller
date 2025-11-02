@@ -29,18 +29,21 @@
 #pragma once
 #include <Arduino.h>
 
-class Control {
+class Control
+{
 protected:
-  String controlId;   // technical identifier (e.g. "BTN_SIFA")
-  uint8_t pin;        // associated hardware pin
+  String controlId; // technical identifier (e.g. "BTN_SIFA")
+  uint8_t pin;      // associated hardware pin
+  const char *lastChangeReason = "unknown";
 
 public:
-  explicit Control(const String& id, uint8_t gpio)
+  explicit Control(const String &id, uint8_t gpio)
       : controlId(id), pin(gpio) {}
 
   virtual ~Control() = default;
+  virtual const char *getChangeReason() const { return lastChangeReason; }
 
-  const String& getId() const { return controlId; }
+  const String &getId() const { return controlId; }
   uint8_t getPin() const { return pin; }
 
   virtual void begin() = 0;

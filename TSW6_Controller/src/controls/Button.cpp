@@ -35,7 +35,8 @@ void Button::begin() {
 
 // --- Update ---
 bool Button::update() {
-  bool reading = digitalRead(pin);
+ lastChangeReason = "none"; // reset reason at start of each update
+     bool reading = digitalRead(pin);
   lastEvent = 0;
 
   if (reading != lastReading) {
@@ -47,6 +48,7 @@ bool Button::update() {
     if (lastStableState != lastReading) {
       lastStableState = lastReading;
       lastEvent = (lastStableState == LOW) ? +1 : -1;
+        lastChangeReason = reading ? "pressed" : "released";
       return true;               // state changed
     }
   }
