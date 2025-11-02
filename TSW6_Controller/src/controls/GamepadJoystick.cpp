@@ -10,9 +10,9 @@
  * @author
  *   Felix Lindemann
  * @date
- *   2025-10-28
+ *   2025-11-02
  * @version
- *   2.0
+ *   2.2
  */
 
 #include "GamepadJoystick.h"
@@ -43,12 +43,21 @@ void GamepadJoystick::begin() {
   pinMode(xPin, INPUT);
   pinMode(yPin, INPUT);
   pinMode(pin, INPUT_PULLUP);
+
+#if defined(ESP32) || defined(ESP8266) || defined(ARDUINO_ARCH_SAMD)
+  analogSetPinAttenuation(xPin, ADC_11db);
+  analogSetPinAttenuation(yPin, ADC_11db);
+  analogReadResolution(12);
+#endif
+
   delay(10);
   calibrateCenter();
 }
 
 // --- Update ---
 bool GamepadJoystick::update() {
+  lastChangeReason = "none"; // reset reason at start of each update
+
   unsigned long now = millis();
   if (now - lastRead < interval) return false;
   lastRead = now;
@@ -60,10 +69,12 @@ bool GamepadJoystick::update() {
   if (abs(newX - xRaw) > xThreshold) {
     xRaw = newX;
     changed = true;
+    lastChangeReason = "axisX";
   }
   if (abs(newY - yRaw) > yThreshold) {
     yRaw = newY;
     changed = true;
+    lastChangeReason = "axisY";
   }
 
   lastButtonPressed = buttonPressed;
@@ -81,27 +92,42 @@ float GamepadJoystick::getValue() const {
   return constrain(mag, 0.0f, 1.0f);
 }
 
-// --- Center calibration ---
+// --- Center calibration with averaging ---
 void GamepadJoystick::calibrateCenter() {
-  xZero = analogRead(xPin);
-  yZero = analogRead(yPin);
+  const int samples = 20;
+  long sumX = 0, sumY = 0;
+
+  for (int i = 0; i < samples; i++) {
+    sumX += analogRead(xPin);
+    sumY += analogRead(yPin);
+    delay(5);
+  }
+
+  xZero = sumX / samples;
+  yZero = sumY / samples;
+
+  Serial.printf("[CALIB] Joystick centerX=%d, centerY=%d\n", xZero, yZero);
 }
 
-// --- Centered values −100 … +100 % ---
-int GamepadJoystick::toCentered(int raw, int zero) const {
+// --- Centered conversion −100 … +100 % (symmetrical around center) ---
+int GamepadJoystick::toCentered(int raw, int zero, int deadZone) const {
   int diff = raw - zero;
-  if (abs(diff) < xDeadZone) return 0;
-  int range = MAX_ANALOG / 2;
-  diff = constrain(diff, -range, range);
-  return map(diff, -range, range, -100, 100);
+
+  // Apply dead zone
+  if (abs(diff) < deadZone) return 0;
+
+  // Normalize to a symmetrical ±100% range around center
+  float centered = static_cast<float>(diff) / static_cast<float>(MAX_ANALOG / 2);
+  centered = constrain(centered, -1.0f, 1.0f);
+  return static_cast<int>(centered * 100.0f);
 }
 
 int GamepadJoystick::getXCentered() const {
-  int centered = toCentered(xRaw, xZero);
+  int centered = toCentered(xRaw, xZero, xDeadZone);
   return xInverted ? -centered : centered;
 }
 
 int GamepadJoystick::getYCentered() const {
-  int centered = toCentered(yRaw, yZero);
+  int centered = toCentered(yRaw, yZero, yDeadZone);
   return yInverted ? -centered : centered;
 }

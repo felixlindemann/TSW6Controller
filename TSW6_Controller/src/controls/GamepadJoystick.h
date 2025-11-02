@@ -24,9 +24,12 @@
  *  - Button returns 1.0 when pressed
  *  - The Control::pin refers to the button GPIO
  *
- * @auth or Felix Lindemann
- * @date 2025-10-28
- * @version 2.0
+ * @author
+ *   Felix Lindemann
+ * @date
+ *   2025-10-28
+ * @version
+ *   2.1
  */
 
 #pragma once
@@ -55,7 +58,7 @@ private:
       1023;
 #endif
 
-  int toCentered(int raw, int zero) const;
+  int toCentered(int raw, int zero, int deadZone) const;
 
 public:
   GamepadJoystick(const String& id, uint8_t x, uint8_t y, uint8_t button);
@@ -69,6 +72,7 @@ public:
   int getYCentered() const;
   bool isPressed() const { return buttonPressed; }
 
+  // Calibration and configuration
   void calibrateCenter();
   void setXInverted(bool inv) { xInverted = inv; }
   void setYInverted(bool inv) { yInverted = inv; }
