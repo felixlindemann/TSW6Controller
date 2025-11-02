@@ -1,82 +1,81 @@
 /**
  * @file RotaryKnob.cpp
- * @brief Implementation of the RotaryKnob control.
+ * @brief Interrupt-based rotary encoder implementation for ESP32.
  *
  * @details
- * Implements the Control interface.  Converts rotary encoder signals into
- * normalized values (−1.0 … +1.0).  Direction detection uses falling edge
- * on channel A, channel B defines rotation sign.
- *
- * @author
- *   Felix Lindemann
- * @date
- *   2025-10-28
- * @version
- *   2.0
+ * Uses full quadrature decoding (Gray code state table)
+ * to determine direction without ambiguity.
  */
 
 #include "RotaryKnob.h"
 
 // --- Constructor ---
-RotaryKnob::RotaryKnob(const String& id, uint8_t a, uint8_t b,
-                       unsigned long debounceMs, float minV, float maxV)
-    : Control(id, a),          // 'pin' field in base used for A-channel
-      pinA(a),
-      pinB(b),
-      lastA(HIGH),
-      lastB(HIGH),
-      position(0),
-      lastEventTime(0),
-      debounce(debounceMs),
-      lastDelta(0),
-      minValue(minV),
-      maxValue(maxV) {}
+RotaryKnob::RotaryKnob(const String& id, uint8_t a, uint8_t b)
+    : Control(id, 0), pinA(a), pinB(b),
+      encoderDelta(0), lastState(0), lastChange(0) {}
 
-// --- Initialization ---
+// --- ISR Handlers ---
+void IRAM_ATTR RotaryKnob::handleInterruptA(void* arg) {
+  RotaryKnob* self = static_cast<RotaryKnob*>(arg);
+  uint8_t a = digitalRead(self->pinA);
+  uint8_t b = digitalRead(self->pinB);
+  uint8_t state = (a << 1) | b;
+
+  static const int8_t table[4][4] = {
+      {0, -1, +1, 0},
+      {+1, 0, 0, -1},
+      {-1, 0, 0, +1},
+      {0, +1, -1, 0}};
+
+  self->encoderDelta += table[self->lastState][state];
+  self->lastState = state;
+}
+
+void IRAM_ATTR RotaryKnob::handleInterruptB(void* arg) {
+  handleInterruptA(arg); // identical processing
+}
+
+// --- Begin ---
 void RotaryKnob::begin() {
   pinMode(pinA, INPUT_PULLUP);
   pinMode(pinB, INPUT_PULLUP);
-  lastA = digitalRead(pinA);
-  lastB = digitalRead(pinB);
-  position = 0;
-  lastDelta = 0;
-  lastEventTime = millis();
+
+  lastState = (digitalRead(pinA) << 1) | digitalRead(pinB);
+  encoderDelta = 0;
+
+  attachInterruptArg(digitalPinToInterrupt(pinA), handleInterruptA, this, CHANGE);
+  attachInterruptArg(digitalPinToInterrupt(pinB), handleInterruptB, this, CHANGE);
+
+  lastChange = millis();
 }
 
 // --- Update ---
 bool RotaryKnob::update() {
-  int nowA = digitalRead(pinA);
-  int nowB = digitalRead(pinB);
-  lastDelta = 0;
+  lastChangeReason = "none";
+  int8_t delta = encoderDelta;
+  if (delta == 0) return false;
+  encoderDelta = 0;
 
-  // detect falling edge on A
-  if (lastA == HIGH && nowA == LOW) {
-    unsigned long now = millis();
-    if (now - lastEventTime > debounce) {
-      if (nowB == HIGH) {
-        position++;
-        lastDelta = +1;
-      } else {
-        position--;
-        lastDelta = -1;
-      }
-      lastEventTime = now;
-      lastA = nowA;
-      lastB = nowB;
-      return true;   // state changed
-    }
+  if (delta > 0) {
+    lastChangeReason = "turnRight";
+    value = +1.0f;
+  } else {
+    lastChangeReason = "turnLeft";
+    value = -1.0f;
   }
 
-  lastA = nowA;
-  lastB = nowB;
-  return false;      // no change
+  lastChange = millis();
+  return true;
 }
 
-// --- Normalized value ---
+// --- Get Value ---
 float RotaryKnob::getValue() const {
-  // Map current position to normalized range (−1 … +1)
-  float range = maxValue - minValue;
-  if (range == 0) return 0.0f;
-  float normalized = (position % 100) / 50.0f - 1.0f;  // wrap every 100 steps
-  return constrain(normalized, minValue, maxValue);
+  return value;
+}
+
+// --- Reset ---
+void RotaryKnob::reset() {
+  encoderDelta = 0;
+  value = 0.0f;
+  lastChangeReason = "none";
 }

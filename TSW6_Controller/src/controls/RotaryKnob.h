@@ -1,32 +1,23 @@
 /**
  * @file RotaryKnob.h
- * @brief Incremental rotary encoder implementing the Control interface.
+ * @brief Robust quadrature rotary encoder with direction detection.
  *
  * @details
- * Reads a two-channel rotary encoder (A/B pins) and detects direction and steps.
- * Each update() call evaluates encoder edges and updates an internal position
- * counter.  The current value is exposed as a normalized float (−1.0 … +1.0)
- * relative to configured min/max limits.
+ * Reads two digital inputs (A/B) using interrupts.
+ * Reports +1.0 for right (CW) and -1.0 for left (CCW) turns.
  *
- * Example:
- * @code
- *   RotaryKnob brake("ROT_BRAKE", 4, 5);
- *   brake.begin();
- *   if (brake.update()) {
- *       float delta = brake.getValue();
- *       Serial.println(delta);
- *   }
- * @endcode
+ * Hardware setup:
+ *  - A/B pins each pulled up via 10kΩ to 3.3V
+ *  - Optional 100nF to GND for hardware debouncing
+ *  - Common pin to GND
  *
- * @note
- *  - Default debounce = 2 ms between valid steps.
- *  - Direction detection: Channel A falling edge, Channel B defines sign.
- *
- * @auth or Felix Lindemann
- * @date 2025-10-28
- * @version 2.0
+ * @author
+ *   Felix Lindemann
+ * @date
+ *   2025-11-02
+ * @version
+ *   2.1
  */
-
 #pragma once
 #include <Arduino.h>
 #include "Control.h"
@@ -35,25 +26,23 @@ class RotaryKnob : public Control {
 private:
   uint8_t pinA;
   uint8_t pinB;
-  int lastA;
-  int lastB;
-  int position;
-  unsigned long lastEventTime;
-  unsigned long debounce;     // minimal time between events [ms]
-  int lastDelta;              // +1 / –1 / 0
-  float minValue;
-  float maxValue;
+
+  volatile int8_t encoderDelta;
+  volatile uint8_t lastState;
+  unsigned long lastChange;
+
+  float value;  // <-- added: holds the last reported value (-1.0 / +1.0)
+
+  static void IRAM_ATTR handleInterruptA(void* arg);
+  static void IRAM_ATTR handleInterruptB(void* arg);
 
 public:
-  RotaryKnob(const String& id, uint8_t a, uint8_t b,
-             unsigned long debounceMs = 2,
-             float minV = -1.0f, float maxV = 1.0f);
+  RotaryKnob(const String& id, uint8_t a, uint8_t b);
 
   void begin() override;
   bool update() override;
-  float getValue() const override;   // normalized −1.0 … +1.0
+  float getValue() const override;
 
-  int getPosition() const { return position; }
-  void reset() { position = 0; }
-  int getLastDelta() const { return lastDelta; }
+  void reset();
 };
+
