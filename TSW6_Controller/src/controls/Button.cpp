@@ -17,7 +17,7 @@
 #include "Button.h"
 
 // --- Constructor ---
-Button::Button(const String& id, uint8_t gpio, unsigned int debounce)
+Button::Button(const String &id, uint8_t gpio, unsigned int debounce)
     : Control(id, gpio),
       debounceDelay(debounce),
       lastStableState(HIGH),
@@ -26,7 +26,8 @@ Button::Button(const String& id, uint8_t gpio, unsigned int debounce)
       lastEvent(0) {}
 
 // --- Initialization ---
-void Button::begin() {
+void Button::begin()
+{
   pinMode(pin, INPUT_PULLUP);
   lastReading = digitalRead(pin);
   lastStableState = lastReading;
@@ -34,28 +35,41 @@ void Button::begin() {
 }
 
 // --- Update ---
-bool Button::update() {
- lastChangeReason = "none"; // reset reason at start of each update
-     bool reading = digitalRead(pin);
+bool Button::update()
+{
+  lastChangeReason = "none"; // reset reason at start of each update
+  bool reading = digitalRead(pin);
   lastEvent = 0;
 
-  if (reading != lastReading) {
+  if (reading != lastReading)
+  {
     lastDebounceTime = millis();
     lastReading = reading;
   }
 
-  if ((millis() - lastDebounceTime) > debounceDelay) {
-    if (lastStableState != lastReading) {
+  if ((millis() - lastDebounceTime) > debounceDelay)
+  {
+    if (lastStableState != lastReading)
+    {
       lastStableState = lastReading;
       lastEvent = (lastStableState == LOW) ? +1 : -1;
-        lastChangeReason = reading ? "pressed" : "released";
-      return true;               // state changed
+      lastChangeReason = reading ? "pressed" : "released";
+#if TRACE
+      if (isPressed()) {
+        TRACE_PRINT("[%lu ms] Button %s pressed\n", millis(), getId().c_str());
+      } else {
+        TRACE_PRINT("[%lu ms] Button %s released\n", millis(), getId().c_str());
+      }
+#endif
+
+      return true; // state changed
     }
   }
-  return false;                  // no change
+  return false; // no change
 }
 
 // --- Value getter ---
-float Button::getValue() const {
+float Button::getValue() const
+{
   return (lastStableState == LOW) ? 1.0f : 0.0f;
 }
