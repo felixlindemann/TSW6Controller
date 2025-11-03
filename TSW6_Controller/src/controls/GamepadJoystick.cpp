@@ -19,7 +19,7 @@
 #include <math.h>
 
 // --- Constructor ---
-GamepadJoystick::GamepadJoystick(const String& id, uint8_t x, uint8_t y, uint8_t button)
+GamepadJoystick::GamepadJoystick(const String &id, uint8_t x, uint8_t y, uint8_t button)
     : Control(id, button),
       xPin(x),
       yPin(y),
@@ -39,7 +39,8 @@ GamepadJoystick::GamepadJoystick(const String& id, uint8_t x, uint8_t y, uint8_t
       yRaw(0) {}
 
 // --- Initialization ---
-void GamepadJoystick::begin() {
+void GamepadJoystick::begin()
+{
   pinMode(xPin, INPUT);
   pinMode(yPin, INPUT);
   pinMode(pin, INPUT_PULLUP);
@@ -55,23 +56,27 @@ void GamepadJoystick::begin() {
 }
 
 // --- Update ---
-bool GamepadJoystick::update() {
+bool GamepadJoystick::update()
+{
   lastChangeReason = "none"; // reset reason at start of each update
 
   unsigned long now = millis();
-  if (now - lastRead < interval) return false;
+  if (now - lastRead < interval)
+    return false;
   lastRead = now;
 
   int newX = analogRead(xPin);
   int newY = analogRead(yPin);
   bool changed = false;
 
-  if (abs(newX - xRaw) > xThreshold) {
+  if (abs(newX - xRaw) > xThreshold)
+  {
     xRaw = newX;
     changed = true;
     lastChangeReason = "axisX";
   }
-  if (abs(newY - yRaw) > yThreshold) {
+  if (abs(newY - yRaw) > yThreshold)
+  {
     yRaw = newY;
     changed = true;
     lastChangeReason = "axisY";
@@ -79,13 +84,21 @@ bool GamepadJoystick::update() {
 
   lastButtonPressed = buttonPressed;
   buttonPressed = (digitalRead(pin) == LOW);
-  if (buttonPressed != lastButtonPressed) changed = true;
+  if (buttonPressed != lastButtonPressed)
+  {
+    changed = true; 
+      Serial.printf(" [GAMEPAD BUTTON %s]\n",
+                  buttonPressed ? "pressed" : "released");
+  
+    lastChangeReason = "button";
+  }
 
   return changed;
 }
 
 // --- Value (vector magnitude 0.0–1.0) ---
-float GamepadJoystick::getValue() const {
+float GamepadJoystick::getValue() const
+{
   float x = getXCentered() / 100.0f;
   float y = getYCentered() / 100.0f;
   float mag = sqrtf(x * x + y * y);
@@ -93,11 +106,13 @@ float GamepadJoystick::getValue() const {
 }
 
 // --- Center calibration with averaging ---
-void GamepadJoystick::calibrateCenter() {
+void GamepadJoystick::calibrateCenter()
+{
   const int samples = 20;
   long sumX = 0, sumY = 0;
 
-  for (int i = 0; i < samples; i++) {
+  for (int i = 0; i < samples; i++)
+  {
     sumX += analogRead(xPin);
     sumY += analogRead(yPin);
     delay(5);
@@ -110,11 +125,13 @@ void GamepadJoystick::calibrateCenter() {
 }
 
 // --- Centered conversion −100 … +100 % (symmetrical around center) ---
-int GamepadJoystick::toCentered(int raw, int zero, int deadZone) const {
+int GamepadJoystick::toCentered(int raw, int zero, int deadZone) const
+{
   int diff = raw - zero;
 
   // Apply dead zone
-  if (abs(diff) < deadZone) return 0;
+  if (abs(diff) < deadZone)
+    return 0;
 
   // Normalize to a symmetrical ±100% range around center
   float centered = static_cast<float>(diff) / static_cast<float>(MAX_ANALOG / 2);
@@ -122,12 +139,14 @@ int GamepadJoystick::toCentered(int raw, int zero, int deadZone) const {
   return static_cast<int>(centered * 100.0f);
 }
 
-int GamepadJoystick::getXCentered() const {
+int GamepadJoystick::getXCentered() const
+{
   int centered = toCentered(xRaw, xZero, xDeadZone);
   return xInverted ? -centered : centered;
 }
 
-int GamepadJoystick::getYCentered() const {
+int GamepadJoystick::getYCentered() const
+{
   int centered = toCentered(yRaw, yZero, yDeadZone);
   return yInverted ? -centered : centered;
 }
