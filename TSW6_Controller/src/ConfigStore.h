@@ -1,6 +1,8 @@
 #pragma once
 #include <Arduino.h>
 #include <LittleFS.h>
+#include "config.h"
+
 
 struct Config {
   char ssid[32];

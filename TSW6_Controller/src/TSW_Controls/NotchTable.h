@@ -29,6 +29,7 @@
 #include <ArduinoJson.h>
 #include <FS.h>
 #include <SD.h>
+#include "../config.h"
 
 struct Notch
 {

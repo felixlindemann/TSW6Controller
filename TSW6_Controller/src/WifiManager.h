@@ -1,10 +1,6 @@
+
 #pragma once
-#define SETUP_BUTTON 26
-#define STATUS_LED 22
-#define DNS_PORT 53
-
-#define MyIP "192.168.4.1"
-
+#include "config.h"
 #include <WiFi.h>
 #include <WebServer.h>
 #include <DNSServer.h>
@@ -63,52 +59,7 @@ bool checkLogoFile()
     f.close();
     return true;
 }
-
-/*
-
-String embedLogo_alt() {
-  File logo = LittleFS.open("/logo_Ole_TSW.svg", "r");
-  if (!logo) return String();
-  static const char b64[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-  String out; out.reserve(4096);
-  uint8_t in[3]; int len;
-  while ((len = logo.read(in, 3)) > 0) {
-    for (int i = len; i < 3; i++) in[i] = 0;
-    out += b64[in[0] >> 2];
-    out += b64[((in[0] & 0x03) << 4) | (in[1] >> 4)];
-    out += (len > 1) ? b64[((in[1] & 0x0F) << 2) | (in[2] >> 6)] : '=';
-    out += (len > 2) ? b64[in[2] & 0x3F] : '=';
-  }
-  logo.close();
-  return out;
-}
-String embedLogo() {
-  if (!LittleFS.begin() || !LittleFS.exists("/logo_Ole_TSW.svg")) {
-    Serial.println("[LOGO] Verwende Platzhalter-Grafik");
-    // Einfaches graues Rechteck mit Text
-    return "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCI+"
-           "PHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZGRlIiByeD0iMTIiLz48dGV4dCB4PSIxMCIg"
-           "eT0iNDUiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiM3Nzc3NzciPk5vIExvZ288L3RleHQ+PC9zdmc+";
-  }
-
-  File logo = LittleFS.open("/logo_Ole_TSW.svg", "r");
-  if (!logo) return "";
-
-  static const char b64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-  String out; out.reserve(4096);
-  uint8_t in[3]; int len;
-  while ((len = logo.read(in, 3)) > 0) {
-    for (int i = len; i < 3; i++) in[i] = 0;
-    out += b64[in[0] >> 2];
-    out += b64[((in[0] & 0x03) << 4) | (in[1] >> 4)];
-    out += (len > 1) ? b64[((in[1] & 0x0F) << 2) | (in[2] >> 6)] : '=';
-    out += (len > 2) ? b64[in[2] & 0x3F] : '=';
-  }
-  logo.close();
-  return out;
-}
-*/
+ 
 
 // -------------------------------------------------------------
 // HTML (Offline „Bootstrap“-Look) + JS für Mode-Umschaltung

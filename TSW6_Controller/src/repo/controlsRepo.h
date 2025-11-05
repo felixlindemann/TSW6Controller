@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include <vector>
 #include "../controls/Control.h"
+#include "../config.h"
 
 class ControlRegistry
 {

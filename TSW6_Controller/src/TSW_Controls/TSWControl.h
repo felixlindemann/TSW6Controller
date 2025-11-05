@@ -18,6 +18,7 @@
 #include <Arduino.h>
 #include "NotchTable.h"
 #include "TSWSpider.h"
+#include "../config.h"
 
 class TSWControl {
 protected:

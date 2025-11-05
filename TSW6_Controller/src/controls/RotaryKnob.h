@@ -21,6 +21,7 @@
 #pragma once
 #include <Arduino.h>
 #include "Control.h"
+#include "../config.h"
 
 class RotaryKnob : public Control {
 private:

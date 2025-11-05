@@ -35,6 +35,7 @@
 #pragma once
 #include <Arduino.h>
 #include "Control.h"
+#include "../config.h"
 
 class GamepadJoystick : public Control {
 private:
