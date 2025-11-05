@@ -2,6 +2,7 @@
 #include <Arduino.h>
 #include <WebServer.h>
 #include <DNSServer.h>
+#include "config.h"
 
 // ---------------------------------------------------------------------------
 // Erweiterte Captive-Portal-Implementierung für Pico-W
