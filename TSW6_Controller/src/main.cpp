@@ -1,70 +1,18 @@
-#define TRACE 1 // if 1 show Results of every control. Set only for dev to 1
-
-#ifndef BUILD_NUMBER
-#define BUILD_NUMBER 1
-#endif
-
-#ifndef BUILD_DATE
-#define BUILD_DATE __DATE__ " " __TIME__
-#endif
-
-#include "WifiManager.h"
-#include "TSW_Controls/TSWButton.h"
-#include "TSW_Controls/TSWRotaryKnob.h"
+#include "config.h"
 #include "repo/controlsRepo.h"
-#include "TSW_Controls/TSWLever.h"
-#include "controls/GamepadJoystick.h"
-#include "controls/MCPButtonArray.h"
 
-#if TRACE
-#define TRACE_PRINT(...) Serial.printf(__VA_ARGS__)
-#else
-#define TRACE_PRINT(...)
+#if USE_WIFIMANAGER
+#include "WifiManager.h"
 #endif
-static GamepadJoystick *pad1Ptr = nullptr;
 
-void setupControls()
-{
-  /*
-  static Button btn1("btnRed", 26);
-  ControlRegistry::registerControl(&btn1, "Button");
-  static Button btn2("btnGreen", 27);
-  ControlRegistry::registerControl(&btn2, "Button");
-  static RotaryKnob btn3("rot01", 12, 14);
-  ControlRegistry::registerControl(&btn3, "Button");
-  */
+#include "TSW_Controls/TSWSpider.h"
+TSWSpider tswSpider = TSWSpider();
 
-  static AnalogSlider sld1("sld1", GPIO_NUM_32);
-  ControlRegistry::registerControl(&sld1, "AnalogSlider");
-  sld1.setInverted(true);
-
-  static AnalogSlider sld2("sld2", GPIO_NUM_35);
-  ControlRegistry::registerControl(&sld2, "AnalogSlider");
-  sld2.setInverted(true);
-
-  static AnalogSlider sld3("sld3", GPIO_NUM_34);
-  ControlRegistry::registerControl(&sld3, "AnalogSlider");
-
-  static GamepadJoystick pad1("pad1", GPIO_NUM_39, GPIO_NUM_36, GPIO_NUM_13);
-  ControlRegistry::registerControl(&pad1, "GamepadJoystick");
-  pad1.setXInverted(true);
-  pad1.setYInverted(true);
-  pad1Ptr = &pad1;
-
-  static MCPButtonArray mcpButtons("BTN", 1, 25, 0, 50);
-  mcpButtons.begin();
-  ControlRegistry::registerControl(&mcpButtons, "MCPButton");
-
-  static RotaryKnob rotary01("rot01", GPIO_NUM_16, GPIO_NUM_17);
-  ControlRegistry::registerControl(&rotary01, "RotaryKnob");
-  rotary01.begin();
-
-  ControlRegistry::listAll();
-
-  Serial.printf("ADC X raw=%d, ADC Y raw=%d\n", analogRead(GPIO_NUM_39), analogRead(GPIO_NUM_36));
-
-  delay(2000);
-}
+#include "TSW_Controls/TSWLever.setup.h"
+#include "TSW_Controls/TSWRotaryKnob.setup.h"
+#include "TSW_Controls/TSWGamePadControl.setup.h"
+#include "TSW_Controls/TSWMCPButton.setup.h"
+#include "TSW_Controls/TSWButton.setup.h"
 
 void setup()
 {
@@ -92,51 +40,109 @@ void setup()
   analogSetWidth(12); // 12-bit resolution (0–4095)
 #endif
 
+#if USE_WIFIMANAGER
   beginWiFiManager();
-  setupControls();
+#endif
+
+  SETUP_ANALOG_SLIDER(&tswSpider);
+  SETUP_ROTARYBUTTON(&tswSpider);
+  SETUP_GAMEPAD(&tswSpider);
+  SETUP_MCPButtonArray(&tswSpider);
+  SETUP_BUTTONS(&tswSpider);
+
+  ControlRegistry::listAll();
+
+  delay(100);
 }
 
-void genericLoop()
+void loopAnalogControls(unsigned long now)
 {
-  static unsigned long lastUpdate = 0;
-  static unsigned long lastTrace = 0;
-  unsigned long now = millis();
-
-  if (now - lastUpdate < 50)
-    return; // 20 Hz polling rate
-  lastUpdate = now;
-
   for (auto &entry : ControlRegistry::getAll())
   {
+    if (entry.type != "AnalogSlider" && entry.id != "pad1")
+      continue;
+
     Control *control = entry.instance;
     if (!control)
       continue;
 
     bool changed = control->update();
+    if (!changed)
+      continue;
+
     float value = control->getValue();
+
 #if TRACE
-    if (changed)
+    if (entry.id == "pad1")
     {
-      if (changed && entry.id == "pad1" && pad1Ptr)
-      {
-        TRACE_PRINT("[%lu ms] %-12s %-14s => x: %d  y: %d",
-                    now, entry.type, entry.id.c_str(),
-                    pad1Ptr->getXCentered(), pad1Ptr->getYCentered());
-        TRACE_PRINT("   [CHANGED: %s]\n", control->getChangeReason());
-        TRACE_PRINT("\n");
-      }
-      else
-      {
-        TRACE_PRINT("[%lu ms] %-12s %-14s => %.2f",
-                    now, entry.type, entry.id.c_str(), value);
-        TRACE_PRINT("   [CHANGED: %s]\n", control->getChangeReason());
-        TRACE_PRINT("\n");
-      }
+#if USE_GAMEPAD
+      TRACE_PRINT("[%lu ms] %-12s %-14s => x: %d  y: %d",
+                  now, entry.type, entry.id.c_str(),
+                  pad1Ptr->getXCentered(), pad1Ptr->getYCentered());
+      TRACE_PRINT("   [CHANGED: %s]\n", control->getChangeReason());
+      TRACE_PRINT("\n");
+#endif
+    }
+    else
+    {
+      TRACE_PRINT("[%lu ms] %-12s %-14s => %.2f   [CHANGED: %s]\n",
+                  now, entry.type, entry.id.c_str(), value,
+                  control->getChangeReason());
     }
 #endif
   }
+}
+
+void loopButtonControls(unsigned long now)
+{
+  for (auto &entry : ControlRegistry::getAll())
+  {
+    if (entry.type != "Button" &&
+        entry.type != "MCPButton" &&
+        // entry.type != "MCPButtonArray" &&
+        entry.type != "GamepadJoystick")
+      continue;
+
+    Control *control = entry.instance;
+    if (!control)
+      continue;
+
+    bool changed = control->update();
+    if (!changed)
+      continue;
+
+    float value = control->getValue();
+  }
+}
+
+void loopRotaryControls(unsigned long now)
+{
+  for (auto &entry : ControlRegistry::getAll())
+  {
+    if (entry.type != "RotaryKnob")
+      continue;
+
+    Control *control = entry.instance;
+    if (!control)
+      continue;
+
+    bool changed = control->update();
+    if (!changed)
+      continue;
 
 #if TRACE
+
+    TRACE_PRINT("[%lu ms] %-12s %-14s => %.2f   [CHANGED: %s]\n",
+                now, entry.type, entry.id.c_str(),
+                control->getValue(), control->getChangeReason());
+#endif
+  }
+}
+
+void loopTraceHeartbeat(unsigned long now)
+{
+#if TRACE
+  static unsigned long lastTrace = 0;
   if (now - lastTrace > 2000)
   {
     lastTrace = now;
@@ -147,8 +153,21 @@ void genericLoop()
 
 void loop()
 {
+
+#if USE_WIFIMANAGER
   loopWiFiManager();
-  genericLoop();
+#endif
+
+  static unsigned long lastUpdate = 0;
+  unsigned long now = millis();
+
+  if (now - lastUpdate < 50)
+    return; // 20 Hz polling rate
+
+  loopAnalogControls(now);
+  loopButtonControls(now);
+  loopRotaryControls(now);
+  loopTraceHeartbeat(now);
+  lastUpdate = now;
   delay(1);
-  // Vor JEDEM großen Block:
 }

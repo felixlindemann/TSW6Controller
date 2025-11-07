@@ -9,31 +9,35 @@
 #include "TSWRotaryKnob.h"
 
 // --- Constructor ---
-TSWRotaryKnob::TSWRotaryKnob(const String& id, uint8_t a, uint8_t b,
-                             TSWSpider* spider, float minVal, float maxVal)
+TSWRotaryKnob::TSWRotaryKnob(const String &id, uint8_t a, uint8_t b,
+                             TSWSpider *spider, float minVal, float maxVal)
     : RotaryKnob(id, a, b), TSWControl(id, spider),
       minValue(minVal), maxValue(maxVal), currentTSWValue(0.0f) {}
 
 // --- Legacy overload (keeps compatibility) ---
-TSWRotaryKnob::TSWRotaryKnob(const String& id, uint8_t a, uint8_t b,
+TSWRotaryKnob::TSWRotaryKnob(const String &id, uint8_t a, uint8_t b,
                              int steps, float minVal, float maxVal)
     : RotaryKnob(id, a, b), TSWControl(id, nullptr),
-      minValue(minVal), maxValue(maxVal), currentTSWValue(0.0f) {
+      minValue(minVal), maxValue(maxVal), currentTSWValue(0.0f)
+{
   (void)steps;
 }
 
 // --- Begin ---
-void TSWRotaryKnob::begin() {
-  RotaryKnob::begin();  // use hardware init
+void TSWRotaryKnob::begin()
+{
+  RotaryKnob::begin(); // use hardware init
 }
 
 // --- Update ---
-bool TSWRotaryKnob::update() {
+bool TSWRotaryKnob::update()
+{
   bool changed = RotaryKnob::update();
-  if (!changed) return false;
+  if (!changed)
+    return false;
 
   // Map hardware value (-1.0/+1.0) to TSW range (min/max)
-  float hw = getValue();   // from RotaryKnob
+  float hw = getValue(); // from RotaryKnob
   if (hw > 0)
     currentTSWValue = maxValue;
   else if (hw < 0)
@@ -49,8 +53,10 @@ bool TSWRotaryKnob::update() {
 }
 
 // --- Update + Send ---
-void TSWRotaryKnob::updateAndSend() {
-  if (update()) {
+void TSWRotaryKnob::updateAndSend()
+{
+  if (update())
+  {
     sendValueToTSW(currentTSWValue);
   }
 }

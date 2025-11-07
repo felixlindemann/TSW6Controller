@@ -28,13 +28,14 @@
 #include "TSWControl.h"
 #include "../controls/Button.h"
 
-class TSWButton : public Button, public TSWControl {
+class TSWButton : public Button, public TSWControl
+{
 private:
   float lastSentValue;
 
 public:
-  TSWButton(uint8_t pin, const String& ctrl, TSWSpider* s);
+  TSWButton(uint8_t pin, const String &ctrl, TSWSpider *s);
 
-  void loadNotches(const String& filePath);
+  void loadNotches(const String &filePath);
   void updateAndSend();
 };

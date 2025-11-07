@@ -1,18 +1,30 @@
+/**
+ * @file MCPButtonArray.cpp
+ * @brief Stable MCP23S17 button array handler with debouncing and trace throttling.
+ *
+ * @details
+ *  - Supports multiple MCP23S17 expanders via SPI.
+ *  - Each input uses software debouncing.
+ *  - Filters noise from unconnected inputs.
+ *  - TRACE output only on real state changes (not noise).
+ */
+/**
+ * @file MCPButtonArray.cpp
+ * @brief Stable MCP23S17 button array handler with debouncing and trace throttling.
+ */
 
-#include "repo/controlsRepo.h"   // dein ControlRegistry
+#include "repo/controlsRepo.h"
 #include "MCPButtonArray.h"
 #include "MCPButtonProxy.h"
-MCPButtonArray::MCPButtonArray(const String &idPrefix,
-                               uint8_t expCount,
-                               uint8_t mcpReset,
-                               uint8_t csBase,
-                               unsigned int debounce)
-    : Control(idPrefix, csBase),
-      mcpReset(mcpReset),
-      expanderCount(expCount),
-      csBase(csBase),
+
+#define MIN_DEBOUNCE_MS 30
+#define TRACE_THROTTLE_MS 150
+
+MCPButtonArray::MCPButtonArray(const String &idPrefix, unsigned int debounce)
+    : Control(idPrefix, 0),
       debounceDelay(debounce),
-      lastEventIndex(-1)
+      lastEventIndex(-1),
+      lastPollTime(0)
 {
     expanders = new Adafruit_MCP23X17[expanderCount];
     memset(states, HIGH, sizeof(states));
@@ -20,65 +32,34 @@ MCPButtonArray::MCPButtonArray(const String &idPrefix,
     memset(debounceTimes, 0, sizeof(debounceTimes));
 }
 
+void MCPButtonArray::begin()
+{
+    SPI.begin(18, 19, 23, csPins[0]); // explicit pins for ESP32
 
-void MCPButtonArray::begin() {
-    SPI.begin();
+#if TRACE
+    Serial.println("[DBG] SPI configuration before MCP init:");
+    Serial.printf("  SCK: %d\n  MISO: %d\n  MOSI: %d\n", 18, 19, 23);
+#endif
 
     pinMode(mcpReset, OUTPUT);
     digitalWrite(mcpReset, HIGH);
     delay(2);
     reset();
 
-    for (uint8_t i = 0; i < expanderCount; i++) {
-        if (!expanders[i].begin_SPI(csBase + i)) {
-            Serial.printf("[ERROR] MCP23S17 #%u init failed\n", i);
-            continue;
-        }
-        for (uint8_t p = 0; p < 16; p++) {
-            expanders[i].pinMode(p, INPUT_PULLUP);
-        }
-        Serial.printf("[INIT] MCP23S17 #%u ready\n", i);
-    }
-
-    // Initialzustände setzen
-    unsigned long now = millis();
-    for (int i = 0; i < expanderCount * 16; i++) {
-        debounceTimes[i] = now;
-        readings[i] = HIGH;
-        states[i] = HIGH;
-    }
-
-    // === Neue Registrierung im ControlRegistry ===
-    for (uint8_t i = 0; i < expanderCount * 16; i++) {
-        String id = getButtonId(i);
-        auto* proxy = new MCPButtonProxy(id, this, i);
-        ControlRegistry::registerControl(proxy, "MCPButton");
-    }
-}
-/*
-void MCPButtonArray::begin()
-{
-    SPI.begin();
-    pinMode(mcpReset, OUTPUT);
-    digitalWrite(mcpReset, HIGH); // normaler Betrieb
-    delay(2);
-    reset();
-
     for (uint8_t i = 0; i < expanderCount; i++)
     {
-        uint8_t addr = i; // each chip uses a unique HW address
-        if (!expanders[i].begin_SPI(csBase + i))
+        if (!expanders[i].begin_SPI(csPins[i]))
         {
-            Serial.printf("[ERROR] MCP23S17 #%u init failed\n", i);
+            Serial.printf("[ERROR] MCP23S17 #%u failed at CS=%u\n", i, csPins[i]);
             continue;
         }
 
+        Serial.printf("[OK] MCP23S17 #%u init success (CS=%u)\n", i, csPins[i]);
         for (uint8_t p = 0; p < 16; p++)
-        {
             expanders[i].pinMode(p, INPUT_PULLUP);
-        }
 
-        Serial.printf("[INIT] MCP23S17 #%u ready\n", i);
+        uint16_t pins = expanders[i].readGPIOAB();
+        Serial.printf("[CHECK] MCP23S17 #%u GPIOAB=0x%04X (expected 0xFFFF)\n", i, pins);
     }
 
     unsigned long now = millis();
@@ -88,25 +69,37 @@ void MCPButtonArray::begin()
         readings[i] = HIGH;
         states[i] = HIGH;
     }
-}*/
+
+    ControlRegistry::registerControl(this, "MCPButtonArray");
+
+    for (uint8_t i = 0; i < expanderCount * 16; i++)
+    {
+        String id = getButtonId(i);
+        auto *proxy = new MCPButtonProxy(id, this, i);
+        ControlRegistry::registerControl(proxy, "MCPButton");
+    }
+}
 
 bool MCPButtonArray::update()
 {
-    lastChangeReason = "none";
-    lastEventIndex = -1;
+    unsigned long now = millis();
+    if (now - lastPollTime < 20)
+        return false; // max 50 Hz polling
+    lastPollTime = now;
 
     bool changed = false;
-    unsigned long now = millis();
+    lastChangeReason = "none";
+    lastEventIndex = -1;
 
     for (uint8_t e = 0; e < expanderCount; e++)
     {
         uint16_t pins = expanders[e].readGPIOAB();
+
         for (uint8_t p = 0; p < 16; p++)
         {
             uint8_t index = e * 16 + p;
-            if (index >= sizeof(states))
-                continue; // safety guard
             bool reading = bitRead(pins, p);
+
             if (reading != readings[index])
             {
                 debounceTimes[index] = now;
@@ -121,6 +114,16 @@ bool MCPButtonArray::update()
                     lastEventIndex = index;
                     lastChangeReason = (states[index] == LOW) ? "pressed" : "released";
                     changed = true;
+
+#if TRACE
+                    static unsigned long lastTrace[64] = {0};
+                    if (now - lastTrace[index] > TRACE_THROTTLE_MS)
+                    {
+                        TRACE_PRINT("[%lu ms] MCPButtonArray %s [%02d] %s\n",
+                                    now, getId().c_str(), index, lastChangeReason);
+                        lastTrace[index] = now;
+                    }
+#endif
                 }
             }
         }
@@ -130,25 +133,14 @@ bool MCPButtonArray::update()
 
 void MCPButtonArray::reset()
 {
-    digitalWrite(mcpReset, LOW); // Hardware-Reset auslösen
+    digitalWrite(mcpReset, LOW);
     delay(2);
-    digitalWrite(mcpReset, HIGH); // normaler Betrieb
+    digitalWrite(mcpReset, HIGH);
     delay(2);
-}
-void MCPButtonArray::loop(){
-     if (update()) {
-#if TRACE
-        int idx = getLastEventIndex();
-        Serial.printf("[%s] %s\n",
-            getButtonId(idx).c_str(),
-            getButtonState(idx) ? "PRESSED" : "RELEASED");
-        #endif
-    }
 }
 
 float MCPButtonArray::getValue() const
 {
-    // Return 1.0 if last change was press, 0.0 if release, -1.0 if none
     if (lastEventIndex < 0)
         return -1.0f;
     return (states[lastEventIndex] == LOW) ? 1.0f : 0.0f;
@@ -165,6 +157,5 @@ String MCPButtonArray::getButtonId(uint8_t index) const
 {
     char buf[12];
     snprintf(buf, sizeof(buf), "%s_%02u", getId().c_str(), index + 1);
-
     return String(buf);
 }

@@ -8,35 +8,40 @@
  */
 
 #include "TSWButton.h"
-#include <cmath>  // for fabs
+#include <cmath> // for fabs
 
 // --- Constructor ---
-TSWButton::TSWButton(uint8_t pin, const String& ctrl, TSWSpider* s)
-    : Button(ctrl + "_HW", pin),   // new Control-compatible ctor
+TSWButton::TSWButton(uint8_t pin, const String &ctrl, TSWSpider *s)
+    : Button(ctrl + "_HW", pin), // new Control-compatible ctor
       TSWControl(ctrl, s),
-      lastSentValue(-1.0f) {
+      lastSentValue(-1.0f)
+{
 
   // --- Default notch table for binary buttons ---
-  Notch released = { "Released", 0.0f, 0, 0 };
-  Notch pressed  = { "Pressed",  1.0f, 1, 1 };
-  notches.loadFromArray({ released, pressed });
+  Notch released = {"Released", 0.0f, 0, 0};
+  Notch pressed = {"Pressed", 1.0f, 1, 1};
+  notches.loadFromArray({released, pressed});
 }
 
 // --- Optional: load custom NotchTable from SD ---
-void TSWButton::loadNotches(const String& filePath) {
+void TSWButton::loadNotches(const String &filePath)
+{
   notches.loadFromFile(filePath);
 }
 
 // --- Update & send mapped value ---
-void TSWButton::updateAndSend() {
-  int event = update();  // +1 pressed / -1 released
-  if (event == 0) return;
+void TSWButton::updateAndSend()
+{
+  int event = update(); // +1 pressed / -1 released
+  if (event == 0)
+    return;
 
   float value = isPressed() ? 1.0f : 0.0f;
   if (notches.hasPositions())
     value = notches.mapToTSW(isPressed() ? 100 : 0);
 
-  if (fabs(value - lastSentValue) > 0.001f) {
+  if (fabs(value - lastSentValue) > 0.001f)
+  {
     spider->setControllerValue(controllerName, value);
     lastSentValue = value;
   }
