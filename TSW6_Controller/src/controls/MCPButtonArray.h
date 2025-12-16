@@ -1,74 +1,79 @@
 /**
  * @file MCPButtonArray.h
- * @brief Multi-button input handler for MCP23S17 port expanders.
+ * @brief Multi-button input handler for MCP23S17 port expanders (Rob Tillaart library).
  *
- * @details
- * Provides debounced digital inputs for up to 16 buttons per MCP23S17 device.
- * Each button is internally represented by an MCPButtonProxy instance and
- * can be accessed individually via the ControlRegistry.
- * The MCPButtonArray itself is also registered as a Control to allow
- * central debugging and polling in the main loop.
+ * - Supports NUM_OF_EXPANDERS MCP23S17 chips
+ * - 16 buttons per chip
+ * - Software debouncing per button
+ * - Registers itself + proxies in ControlRegistry
  *
- * Hardware requirements:
- *  - One or more MCP23S17 expanders connected via SPI
- *  - Each input pin configured as INPUT_PULLUP
- *  - Optional external pull-ups or debouncing capacitors
- *
- * @note
- *  This class handles debouncing and state tracking for all attached expanders.
- *  The actual button logic and ControlRegistry integration are handled in the
- *  associated MCPButtonProxy class.
- *
- * @author
- *   Felix Lindemann
- * @date
- *   2025-11-02
- * @version
- *   1.2
+ * Electrical assumption:
+ * - Buttons connect MCP pin -> GND
+ * - Pull-ups enabled (internal via MCP + optional external 10k)
+ * - Therefore: HIGH = released, LOW = pressed
  */
 
 #pragma once
+
 #include <Arduino.h>
 #include <SPI.h>
+
 #include "Control.h"
-#include "Adafruit_MCP23X17.h"
+#include "MCP23S17.h"
 #include "../config.h"
+
+#ifndef PIN_SPI
+#define PIN_SPI { GPIO_NUM_18, GPIO_NUM_19, GPIO_NUM_23, GPIO_NUM_5 } // SCK, MISO, MOSI, CS
+#endif
+
 #ifndef NUM_OF_EXPANDERS
-#define NUM_OF_EXPANDERS 1
+#define NUM_OF_EXPANDERS 2
 #endif
-#ifndef PIN_EXPANDERS
-#define PIN_EXPANDERS {5}
-#endif
-#ifndef PIN_EXPANDERSRESET
-#define PIN_EXPANDERSRESET 25
-#endif
+
 #define BUTTONS_PER_EXPANDER 16
 #define TOTAL_BUTTONS (NUM_OF_EXPANDERS * BUTTONS_PER_EXPANDER)
 
-const uint8_t csPins[] = PIN_EXPANDERS;
 class MCPButtonArray : public Control
 {
-private: 
-  Adafruit_MCP23X17* expanders;  // <== HIER
-  uint8_t expanderCount = NUM_OF_EXPANDERS;
-  bool states[TOTAL_BUTTONS];
-  bool readings[TOTAL_BUTTONS];
-  unsigned long debounceTimes[TOTAL_BUTTONS];
-  unsigned int debounceDelay;
-  uint8_t mcpReset = PIN_EXPANDERSRESET;
-  int lastEventIndex;
-  unsigned long lastPollTime;
-
 public:
-  explicit MCPButtonArray(const String &idPrefix ="BTN",  
-                          unsigned int debounce = 50);
+    explicit MCPButtonArray(const String &idPrefix = "BTN", unsigned int debounceMs = 50);
 
-  void begin() override;
-  bool update() override;
-  float getValue() const override;
+    void begin() override;
+    bool update() override;
+    float getValue() const override;
 
-  void reset();
-  bool getButtonState(uint8_t index) const;
-  int getLastEventIndex() const { return lastEventIndex; }
-  String getButtonId(uint8_t index) const;
+    bool getButtonState(uint8_t index) const;
+    int getLastEventIndex() const { return lastEventIndex; }
+    String getButtonId(uint8_t index) const;
+
+private:
+    static constexpr uint8_t kMaxExpanders = NUM_OF_EXPANDERS; // adjust if you want >2 later
+
+    // SPI pin mapping: {SCK, MISO, MOSI, CS}
+    const uint8_t spiPins[4] = PIN_SPI;
+
+    // Hardware address bits (A2..A0) per chip
+    static constexpr uint8_t MCP_HW_ADDRESS_1 = 0; // 0b000
+    static constexpr uint8_t MCP_HW_ADDRESS_2 = 1; // 0b001
+
+    // MCP23S17 instances (common CS, different HW addresses)
+    MCP23S17 mcp1;
+    MCP23S17 mcp2;
+
+    // Pointers to active expanders (size = NUM_OF_EXPANDERS)
+    MCP23S17* expanders[NUM_OF_EXPANDERS];
+    uint8_t expanderCount = NUM_OF_EXPANDERS;
+
+    // Debounce + state tracking
+    bool states[TOTAL_BUTTONS];               // debounced states (LOW = pressed)
+    bool readings[TOTAL_BUTTONS];             // last raw readings
+    unsigned long debounceTimes[TOTAL_BUTTONS];
+
+    unsigned int debounceDelayMs;
+    int lastEventIndex;
+    unsigned long lastPollTimeMs;
+
+private:
+    void initExpanderOrHalt(MCP23S17 &mcp, uint8_t chipIndex);
+    void haltWithMcpError(uint8_t chipIndex, const char *msg);
 };

@@ -7,9 +7,7 @@
 #include "../controls/MCPButtonArray.h"
 #include "../controls/MCPButtonProxy.h"
 #include "TSW_Controls/TSWMCPButton.h"
-
-static constexpr uint8_t MCP_CS_PINS[] = PIN_EXPANDERS;
-static constexpr uint8_t MCP_RESET_PIN = PIN_EXPANDERSRESET;
+ 
 inline void setupMCPButtonArray(TSWSpider *spider)
 {
 

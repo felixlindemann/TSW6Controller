@@ -15,12 +15,12 @@
 #define USE_GAMEPAD 0
 #define PIN_GAMEPAD {GPIO_NUM_32, GPIO_NUM_35, GPIO_NUM_12}
 #define USE_Button 0
-#define PIN_BUTTONS \
-  {                 \
-  }
+ 
 
-#define PIN_EXPANDERS {4, 5}
-#define PIN_EXPANDERSRESET GPIO_NUM_25
+// we use MCP23S17 expanders for buttons with pin adressing using pins A0,A1,A2
+// SCK, MISO, MOSI, CS // Default SPI pins for LOLIN32 boards
+#define PIN_SPI {GPIO_NUM_18 , GPIO_NUM_19, GPIO_NUM_23 , GPIO_NUM_5} 
+// in default we use 2 expanders for 32 buttons
 #define NUM_OF_EXPANDERS 2
 
 // WLAN
