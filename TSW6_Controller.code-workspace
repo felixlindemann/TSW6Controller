@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "TSW6_Controller"
+		},
+		{
+			"path": "Test"
 		}
 	],
 	"settings": {
