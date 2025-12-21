@@ -1,11 +1,14 @@
 // config.h
 #pragma once
+
+#define USEDISPLAY 0
+
 #define TRACE 1
 #define TRACE_HARDWARE 1
 #define TRACE_API_CALL 1
 #define STATUS_LED 22
 
-#define USE_WIFIMANAGER 1
+#define USE_WIFIMANAGER 0
 
 #define USE_ANALOG_SLIDER 1
 #define PIN_ANALOG_SLIDER {GPIO_NUM_39,GPIO_NUM_34,GPIO_NUM_36,GPIO_NUM_35}
@@ -52,3 +55,13 @@
 #else
 #define USE_MCPBUTTONARRAY 0
 #endif
+// === Geräteinfos ===
+
+extern const char* DEVICE_NAME;
+extern const char* DEVICE_SSID;
+extern const char* DEVICE_PASS;
+extern const char* MDNS_NAME;
+
+extern const int I2C_SDA;
+extern const int I2C_SCL;
+

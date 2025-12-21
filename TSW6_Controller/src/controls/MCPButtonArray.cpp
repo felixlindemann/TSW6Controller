@@ -42,7 +42,10 @@ void MCPButtonArray::haltWithMcpError(uint8_t chipIndex, const char *msg)
     Serial.printf("        SPI pins: SCK=%u MISO=%u MOSI=%u CS=%u\n",
                   spiPins[0], spiPins[1], spiPins[2], spiPins[3]);
     Serial.println("        PLEASE CHECK THE HARDWARE CONNECTIONS / ADDRESS PINS.");
-    while (true) { delay(50); }
+    while (true)
+    {
+        delay(50);
+    }
 }
 
 void MCPButtonArray::initExpanderOrHalt(MCP23S17 &mcp, uint8_t chipIndex)
@@ -51,6 +54,10 @@ void MCPButtonArray::initExpanderOrHalt(MCP23S17 &mcp, uint8_t chipIndex)
     if (!mcp.begin(false))
     {
         haltWithMcpError(chipIndex, "begin(false) failed");
+    }
+    if (!mcp.enableHardwareAddress())
+    {
+        haltWithMcpError(chipIndex, "enableHardwareAddress() failed");
     }
 
     if (!mcp.pinMode16(0xFFFF))
@@ -107,6 +114,9 @@ void MCPButtonArray::begin()
         readings[i] = HIGH;
         states[i] = HIGH;
     }
+
+Serial.printf("MCP1 addr=%u read16=0x%04X\n", mcp1.getAddress(), mcp1.read16());
+Serial.printf("MCP2 addr=%u read16=0x%04X\n", mcp2.getAddress(), mcp2.read16());
 
     // Register this array control
     ControlRegistry::registerControl(this, "MCPButtonArray");

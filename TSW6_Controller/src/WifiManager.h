@@ -9,11 +9,6 @@
 #include "ConfigStore.h"
 #include "CaptivePortal.h"
 
-// === Geräteinfos ===
-const char *DEVICE_NAME = "TSW ContrOL²er";
-const char *DEVICE_SSID = "TSWController-Setup";
-const char *DEVICE_PASS = "tswsetup";
-const char *MDNS_NAME = "TSWController";
 
 WebServer server(80);
 DNSServer dnsServer;
