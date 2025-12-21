@@ -17,6 +17,7 @@
  */
 
 #include "TSWSpider.h"
+#include "../config.h"
 
 void TSWSpider::begin(const String &ip, uint16_t p) {
   host = ip;
@@ -28,13 +29,17 @@ bool TSWSpider::setControllerValue(const String &controller, float value) {
   String url = "http://" + host + ":" + String(port) +
                "/set/ControllerValue/" + controller + "/" + String(value, 3);
 
+
   HTTPClient http;
   http.begin(url);
   int code = http.GET();
   http.end();
 
-  Serial.printf("[Spider] %s -> %s (HTTP %d)\n",
-                controller.c_str(), url.c_str(), code);
+
+  #if TRACE_API_CALL
+    Serial.printf("[Spider] %s : %f -> %s (HTTP %d)\n",                controller.c_str(), value, url.c_str(), code);
+  #endif
+
   return code == 200;
 }
 

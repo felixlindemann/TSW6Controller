@@ -10,7 +10,7 @@ static constexpr uint8_t ROTARY_PINS[] = PIN_Rotary;
 
 inline void setup_RotaryButton(TSWSpider *spider)
 {
-  static RotaryKnob rotary01("rot01", GPIO_NUM_16, GPIO_NUM_17);
+  static RotaryKnob rotary01("rot01", ROTARY_PINS[0], ROTARY_PINS[1]);
   ControlRegistry::registerControl(&rotary01, "RotaryKnob");
   rotary01.begin();
 }

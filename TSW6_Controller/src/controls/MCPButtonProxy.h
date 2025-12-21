@@ -38,15 +38,23 @@ class MCPButtonProxy : public Control
 private:
     MCPButtonArray *parent;
     uint8_t index;
+    bool lastState;
 
 public:
     MCPButtonProxy(const String &id, MCPButtonArray *parentArray, uint8_t idx)
-        : Control(id, 0), parent(parentArray), index(idx) {}
+        : Control(id, 0), parent(parentArray), index(idx), lastState(false) {}
 
     void begin() override {}
     bool update() override
     {
-        // The parent array already polled, so we never trigger hardware reads here.
+        // Check if this specific button changed since last check
+        bool currentState = parent->getButtonState(index);
+        if (currentState != lastState)
+        {
+            lastState = currentState;
+            lastChangeReason = currentState ? "pressed" : "released";
+            return true;
+        }
         return false;
     }
 

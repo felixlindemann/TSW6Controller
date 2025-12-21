@@ -1,19 +1,21 @@
 // config.h
 #pragma once
 #define TRACE 1
+#define TRACE_HARDWARE 1
+#define TRACE_API_CALL 1
 #define STATUS_LED 22
 
 #define USE_WIFIMANAGER 1
 
 #define USE_ANALOG_SLIDER 1
-#define PIN_ANALOG_SLIDER {GPIO_NUM_32, GPIO_NUM_35, GPIO_NUM_34}
-#define ANALOG_SLIDER_INVERTED {true, true, false}
+#define PIN_ANALOG_SLIDER {GPIO_NUM_39,GPIO_NUM_34,GPIO_NUM_36,GPIO_NUM_35}
+#define ANALOG_SLIDER_INVERTED {true, true, false,false}
 
 #define USE_Rotary 0
-#define PIN_Rotary {GPIO_NUM_32, GPIO_NUM_35}
+#define PIN_Rotary {0,0}
 
-#define USE_GAMEPAD 0
-#define PIN_GAMEPAD {GPIO_NUM_32, GPIO_NUM_35, GPIO_NUM_12}
+#define USE_GAMEPAD 1
+#define PIN_GAMEPAD {GPIO_NUM_32, GPIO_NUM_33, GPIO_NUM_12}
 #define USE_Button 0
  
 
@@ -24,7 +26,7 @@
 #define NUM_OF_EXPANDERS 2
 
 // WLAN
-#define SETUP_BUTTON 26 // if pressed LOLIN Starts in AP-Mode
+#define SETUP_BUTTON GPIO_NUM_26 // if pressed LOLIN Starts in AP-Mode
 #define DNS_PORT 53
 #define MyIP "192.168.4.1"
 

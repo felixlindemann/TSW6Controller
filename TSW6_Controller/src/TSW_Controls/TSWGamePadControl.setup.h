@@ -6,16 +6,19 @@
 
 #include "TSWGamePadControl.h"
 
-
-static constexpr uint8_t GAMEPAD_PINS[] = PIN_GAMEPAD; 
+static constexpr uint8_t GAMEPAD_PINS[] = PIN_GAMEPAD;
 
 static TSWGamePadControl *pad1Ptr = nullptr;
-inline void setup_GamePad(TSWSpider* spider)
+inline void setup_GamePad(TSWSpider *spider)
 {
-        static TSWGamePadControl pad1("pad1", GAMEPAD_PINS[0], GAMEPAD_PINS[1], GAMEPAD_PINS[2]);
-  ControlRegistry::registerControl(&pad1, "TSWGamePadControl");
+  static TSWGamePadControl pad1("pad1",
+                                GAMEPAD_PINS[0], GAMEPAD_PINS[1], GAMEPAD_PINS[2],
+                                "JoystickX", "JoystickY", "JoystickButton",
+                                spider);
+
   pad1.setXInverted(true);
   pad1.setYInverted(true);
+  pad1.begin();
   pad1Ptr = &pad1;
 }
 

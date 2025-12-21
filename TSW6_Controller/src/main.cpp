@@ -62,6 +62,8 @@ void loopAnalogControls(unsigned long now)
     if (entry.type != "AnalogSlider" && entry.id != "pad1")
       continue;
 
+    TRACE_PRINT("[%lu ms] Reading Control: %-12s %-14s  \n",      now, entry.type, entry.id.c_str());
+
     Control *control = entry.instance;
     if (!control)
       continue;
@@ -75,13 +77,7 @@ void loopAnalogControls(unsigned long now)
 #if TRACE
     if (entry.id == "pad1")
     {
-#if USE_GAMEPAD
-      TRACE_PRINT("[%lu ms] %-12s %-14s => x: %d  y: %d",
-                  now, entry.type, entry.id.c_str(),
-                  pad1Ptr->getXCentered(), pad1Ptr->getYCentered());
-      TRACE_PRINT("   [CHANGED: %s]\n", control->getChangeReason());
-      TRACE_PRINT("\n");
-#endif
+ 
     }
     else
     {
@@ -95,11 +91,22 @@ void loopAnalogControls(unsigned long now)
 
 void loopButtonControls(unsigned long now)
 {
+  // First: Poll the MCPButtonArray hardware
+  for (auto &entry : ControlRegistry::getAll())
+  {
+    if (entry.type != "MCPButtonArray")
+      continue;
+
+    Control *control = entry.instance;
+    if (control)
+      control->update(); // polls all buttons, updates internal state
+  }
+
+  // Second: Check individual button proxies for changes
   for (auto &entry : ControlRegistry::getAll())
   {
     if (entry.type != "Button" &&
         entry.type != "MCPButton" &&
-        // entry.type != "MCPButtonArray" &&
         entry.type != "GamepadJoystick")
       continue;
 
@@ -112,6 +119,12 @@ void loopButtonControls(unsigned long now)
       continue;
 
     float value = control->getValue();
+
+#if TRACE
+    TRACE_PRINT("[%lu ms] %-12s %-14s => %.2f   [CHANGED: %s]\n",
+                now, entry.type.c_str(), entry.id.c_str(), value,
+                control->getChangeReason());
+#endif
   }
 }
 

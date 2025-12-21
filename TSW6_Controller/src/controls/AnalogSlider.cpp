@@ -11,6 +11,7 @@
  */
 
 #include "AnalogSlider.h"
+#include "../config.h"
 
 // --- Constructor ---
 AnalogSlider::AnalogSlider(const String &id, uint8_t gpio)

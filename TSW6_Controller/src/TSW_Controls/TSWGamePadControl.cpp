@@ -8,6 +8,7 @@
  */
 
 #include "TSWGamePadControl.h"
+#include "../config.h"
 #include <cmath> // fabs
 
 // --- Constructor ---
@@ -56,16 +57,19 @@ void TSWGamePadControl::updateAndSend()
   // X axis
   int xVal = gamepad.getXCentered(); // −100 … +100
   float tswX = notchX.hasPositions() ? notchX.mapToTSW(xVal) : xVal / 100.0f;
-  spider->setControllerValue(controllerX, tswX);
 
   // Y axis
   int yVal = gamepad.getYCentered(); // −100 … +100
   float tswY = notchY.hasPositions() ? notchY.mapToTSW(yVal) : yVal / 100.0f;
-  spider->setControllerValue(controllerY, tswY);
-
-  // Button
-  float btnVal = buttonNotches.mapToTSW(gamepad.isPressed() ? 100 : 0);
-  spider->setControllerValue(controllerButton, btnVal);
 
   lastSentTime = now;
+
+#if TRACE_API_CALL
+  TRACE_PRINT("[%lu ms] GamePad => x: %d  y: %d BTN: %d\n", now, gamepad.getXCentered(), gamepad.getYCentered(), gamepad.isPressed() ? 1 : 0);
+#endif
+  // Button
+  float btnVal = buttonNotches.mapToTSW(gamepad.isPressed() ? 100 : 0);
+  spider->setControllerValue(controllerX, tswX);
+  spider->setControllerValue(controllerY, tswY);
+  spider->setControllerValue(controllerButton, btnVal);
 }
