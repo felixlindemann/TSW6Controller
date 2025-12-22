@@ -22,8 +22,19 @@ inline void setup_GamePad(TSWSpider *spider)
   pad1Ptr = &pad1;
 }
 
+
+inline void update_GamePad()
+{
+  if (pad1Ptr)
+  {
+    pad1Ptr->updateAndSend();
+  }
+}
+
 #define SETUP_GAMEPAD(spiderPtr) setup_GamePad(spiderPtr)
+#define UPDATE_GAMEPAD() update_GamePad()
 
 #else
 #define SETUP_GAMEPAD(...)
+#define UPDATE_GAMEPAD()
 #endif

@@ -42,15 +42,17 @@ public:
     bool update() override;
     float getValue() const override;
 
-    bool getButtonState(uint8_t index) const;
-    int getLastEventIndex() const { return lastEventIndex; }
-    String getButtonId(uint8_t index) const;
+    bool getButtonState(uint8_t index) const; 
+    uint32_t getLastReading() const { return lastReading; }
+    uint32_t getChangedPins() const { return changedPins; }
 
 private:
     static constexpr uint8_t kMaxExpanders = NUM_OF_EXPANDERS; // adjust if you want >2 later
 
     // SPI pin mapping: {SCK, MISO, MOSI, CS}
     const uint8_t spiPins[4] = PIN_SPI;
+      uint32_t lastReading = 0; 
+      uint32_t changedPins = 0; 
 
     // Hardware address bits (A2..A0) per chip
     static constexpr uint8_t MCP_HW_ADDRESS_1 = 0; // 0b000

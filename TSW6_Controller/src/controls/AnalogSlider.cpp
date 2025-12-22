@@ -24,8 +24,8 @@ AnalogSlider::AnalogSlider(const String &id, uint8_t gpio)
   interval = 50;     // ms
   inverted = false;
   lastRead = 0;
-  lastRaw = 0;
-  lastValue = 0;
+  rawValue = 0;
+  value = 0;
 }
 
 // --- Initialization ---
@@ -37,8 +37,8 @@ void AnalogSlider::begin()
   analogSetPinAttenuation(pin, ADC_11db);   
   #endif
   delay(5); // small pause after USB init
-  lastRaw = analogRead(pin) - zero;
-  lastValue = getPercent(lastRaw);
+  rawValue = analogRead(pin) - zero;
+  value = getPercent(rawValue);
   lastChangeReason = "init";
 }
 
@@ -58,16 +58,17 @@ bool AnalogSlider::update()
   if (inverted)
     newRaw = MAX_ANALOG - newRaw;
 
-  if (abs(newRaw - lastRaw) < rawThreshold)
+  if (abs(newRaw - rawValue) < rawThreshold)
     return false;
-  lastRaw = newRaw;
+  lastRawValue = rawValue;
+  rawValue = newRaw;
 
   int newPercent = getPercent(newRaw);
   newPercent = constrain(newPercent, 0, 100);
 
-  if (newPercent != lastValue)
+  if (newPercent != value)
   {
-    lastValue = newPercent;
+    value = newPercent;
     lastChangeReason = "moved";
     return true;
   }
@@ -77,12 +78,13 @@ bool AnalogSlider::update()
 // --- Value Getters ---
 float AnalogSlider::getValue() const
 {
-  float val = static_cast<float>(lastValue) / 100.0f;
+  float val = static_cast<float>(value) / 100.0f;
   return constrain(val, 0.0f, 1.0f);
 }
 
-int AnalogSlider::getRawValue() const { return constrain(lastRaw, 0, MAX_ANALOG); }
-int AnalogSlider::getPercentValue() const { return constrain(lastValue, 0, 100); }
+int AnalogSlider::getCurrentRawValue() const { return constrain(rawValue, 0, MAX_ANALOG); }
+int AnalogSlider::getLastRawValue() const { return constrain(lastRawValue, 0, MAX_ANALOG); }
+int AnalogSlider::getPercentValue() const { return constrain(value, 0, 100); }
 
 // --- Config setters ---
 void AnalogSlider::setZero(int z) { zero = z; }

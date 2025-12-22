@@ -38,4 +38,8 @@ public:
 
   void loadNotches(const String& filePath);
   void updateAndSend();
+
+  void setControllerName(const String& controller) ;
+
+  void setinverted(bool inv) ;
 };

@@ -5,7 +5,6 @@
 
 #include "repo/controlsRepo.h"
 #include "MCPButtonArray.h"
-#include "MCPButtonProxy.h"
 
 #ifndef TRACE_THROTTLE_MS
 #define TRACE_THROTTLE_MS 150
@@ -115,19 +114,8 @@ void MCPButtonArray::begin()
         states[i] = HIGH;
     }
 
-Serial.printf("MCP1 addr=%u read16=0x%04X\n", mcp1.getAddress(), mcp1.read16());
-Serial.printf("MCP2 addr=%u read16=0x%04X\n", mcp2.getAddress(), mcp2.read16());
-
-    // Register this array control
-    ControlRegistry::registerControl(this, "MCPButtonArray");
-
-    // Create and register proxies (one per button)
-    for (uint8_t i = 0; i < TOTAL_BUTTONS; i++)
-    {
-        String id = getButtonId(i);
-        auto *proxy = new MCPButtonProxy(id, this, i);
-        ControlRegistry::registerControl(proxy, "MCPButton");
-    }
+    Serial.printf("MCP1 addr=%u read16=0x%04X\n", mcp1.getAddress(), mcp1.read16());
+    Serial.printf("MCP2 addr=%u read16=0x%04X\n", mcp2.getAddress(), mcp2.read16());
 }
 
 bool MCPButtonArray::update()
@@ -147,47 +135,15 @@ bool MCPButtonArray::update()
     static unsigned long lastTrace[TOTAL_BUTTONS] = {0};
 #endif
 
-    for (uint8_t e = 0; e < expanderCount; e++)
-    {
-        // Read all 16 inputs in one shot
-        const uint16_t pins = expanders[e]->read16();
+    const uint16_t pins_1 = expanders[0]->read16();
+    const uint16_t pins_2 = expanders[1]->read16();
+    const uint32_t currentReading = pins_2 << 16 | pins_1;
+    changedPins = lastReading ^ currentReading;
+ 
 
-        for (uint8_t p = 0; p < BUTTONS_PER_EXPANDER; p++)
-        {
-            const uint16_t index = (uint16_t)e * BUTTONS_PER_EXPANDER + p;
-            const bool raw = (pins & (1u << p)) ? HIGH : LOW;
-
-            // Raw edge -> reset debounce timer
-            if (raw != readings[index])
-            {
-                readings[index] = raw;
-                debounceTimes[index] = now;
-            }
-
-            // Debounced state update
-            if ((now - debounceTimes[index]) >= debounceDelayMs)
-            {
-                if (states[index] != readings[index])
-                {
-                    states[index] = readings[index];
-                    lastEventIndex = (int)index;
-                    lastChangeReason = (states[index] == LOW) ? "pressed" : "released";
-                    changed = true;
-
-#if TRACE
-                    if (now - lastTrace[index] > TRACE_THROTTLE_MS)
-                    {
-                        TRACE_PRINT("[%lu ms] %s [%02u] %s\n",
-                                    now, getId().c_str(), (unsigned)index, lastChangeReason);
-                        lastTrace[index] = now;
-                    }
-#endif
-                }
-            }
-        }
-    }
-
-    return changed;
+    lastReading = currentReading;
+    return changedPins != 0;
+ 
 }
 
 float MCPButtonArray::getValue() const
@@ -203,13 +159,8 @@ bool MCPButtonArray::getButtonState(uint8_t index) const
     if (index >= TOTAL_BUTTONS)
         return false;
 
-    return (states[index] == LOW);
-}
+    const uint32_t mask = (1UL << index);
 
-String MCPButtonArray::getButtonId(uint8_t index) const
-{
-    // BTN_01, BTN_02, ...
-    char buf[16];
-    snprintf(buf, sizeof(buf), "%s_%02u", getId().c_str(), (unsigned)(index + 1));
-    return String(buf);
+   return (lastReading & mask) ? true : false;
 }
+ 

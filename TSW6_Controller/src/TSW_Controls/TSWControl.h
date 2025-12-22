@@ -38,10 +38,9 @@ public:
 
 protected:
   void sendValueToTSW(float tswValue) {
-    if (!spider) return;
-    if (fabs(tswValue - lastSentValue) > 0.001f) {
+    if (!spider) return; 
       spider->setControllerValue(controllerName, tswValue);
       lastSentValue = tswValue;
-    }
+     
   }
 };

@@ -63,6 +63,11 @@ public:
   void loadButtonNotches(const String& filePath);
   void updateAndSend();
 
+  void setControllerX(const String& controller);
+  void setControllerY(const String& controller);
+  void setControllerButton(const String& controller);
+    
+
   void setXInverted(bool inv) { gamepad.setXInverted(inv); };
   void setYInverted(bool inv) { gamepad.setYInverted(inv); }; 
 };

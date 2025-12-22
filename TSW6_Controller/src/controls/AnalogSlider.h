@@ -39,8 +39,9 @@ private:
   int minValue;            // lower calibration limit
   int maxValue;            // upper calibration limit
   int zero;                // offset or midpoint
-  int lastValue;           // last stable percent value (0–100)
-  int lastRaw;             // last stable ADC raw value
+  int value;           // last stable percent value (0–100)
+  int rawValue;             // last stable ADC raw value
+  int lastRawValue;       // last stable ADC raw value
   int rawThreshold;        // minimal raw change required
   bool inverted;           // axis inverted?
   unsigned long lastRead;  // last read time
@@ -54,6 +55,7 @@ private:
 
   int getPercent(int raw) const;
 
+
 public:
   explicit AnalogSlider(const String& id, uint8_t gpio);
 
@@ -63,7 +65,8 @@ public:
 
   // --- Value retrieval ---
   float getValue() const override;   // normalized 0.0–1.0
-  int getRawValue() const;
+  int getCurrentRawValue() const;
+  int getLastRawValue() const;
   int getPercentValue() const;
 
   // --- Configuration ---

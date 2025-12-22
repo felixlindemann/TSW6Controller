@@ -44,6 +44,20 @@ void TSWGamePadControl::loadNotchesX(const String &filePath) { notchX.loadFromFi
 void TSWGamePadControl::loadNotchesY(const String &filePath) { notchY.loadFromFile(filePath); }
 void TSWGamePadControl::loadButtonNotches(const String &filePath) { buttonNotches.loadFromFile(filePath); }
 
+
+
+
+  void TSWGamePadControl::setControllerX(const String& controller){
+    controllerX = controller;
+  }
+  void TSWGamePadControl::setControllerY(const String& controller){
+    controllerY = controller;
+  }
+  void TSWGamePadControl::setControllerButton(const String& controller){
+    controllerButton = controller;
+  }
+    
+
 // --- Update and send ---
 void TSWGamePadControl::updateAndSend()
 {
@@ -67,8 +81,10 @@ void TSWGamePadControl::updateAndSend()
 #if TRACE_API_CALL
   TRACE_PRINT("[%lu ms] GamePad => x: %d  y: %d BTN: %d\n", now, gamepad.getXCentered(), gamepad.getYCentered(), gamepad.isPressed() ? 1 : 0);
 #endif
+
   // Button
-  float btnVal = buttonNotches.mapToTSW(gamepad.isPressed() ? 100 : 0);
+  float btnVal = buttonNotches.mapToTSW(gamepad.isPressed() ? 1.0f : 0.0f);
+
   spider->setControllerValue(controllerX, tswX);
   spider->setControllerValue(controllerY, tswY);
   spider->setControllerValue(controllerButton, btnVal);
