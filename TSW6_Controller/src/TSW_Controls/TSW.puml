@@ -1,4 +1,4 @@
-@startuml
+@startuml classDiagram
 title TSW Controller – Class Architecture (v6 - 2025-12-25)
 
 skinparam classAttributeIconSize 0
