@@ -48,6 +48,7 @@ void AnalogSlider::begin()
 // --- Update ---
 bool AnalogSlider::update()
 {
+  LOG_HW_TRACE("AnalogSlider::update(%s)\n", getId().c_str());
   lastChangeReason = "none";
   unsigned long now = millis();
   if (now - lastRead < interval)
@@ -56,11 +57,11 @@ bool AnalogSlider::update()
 
   int newRaw = analogRead(pin) - zero;
   newRaw = constrain(newRaw, 0, MAX_ANALOG);
+  LOG_HW_TRACE("  Read raw value: %d\n", newRaw);
 
   // --- Hardware inversion ---
   if (inverted)
     newRaw = MAX_ANALOG - newRaw;
-
   if (abs(newRaw - rawValue) < rawThreshold)
     return false;
     
@@ -69,7 +70,6 @@ bool AnalogSlider::update()
 
   int newPercent = getPercent(newRaw);
   newPercent = constrain(newPercent, 0, 100);
-
   if (newPercent != value)
   {
     value = newPercent;
@@ -77,6 +77,7 @@ bool AnalogSlider::update()
     LOG_HW_TRACE("AnalogSlider %s: raw=%d pct=%d\n", getId().c_str(), rawValue, value);
     return true;
   }
+    LOG_HW_TRACE(" --->  No significant change detected\n");
   return false;
 }
 

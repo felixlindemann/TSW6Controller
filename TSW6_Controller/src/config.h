@@ -5,10 +5,10 @@
 
 // === Logging Configuration ===
 // Log Levels: 0=OFF, 1=ERROR, 2=WARN, 3=INFO, 4=DEBUG, 5=TRACE
-#define LOG_LEVEL_HARDWARE 3   // INFO
-#define LOG_LEVEL_SOFTWARE 3   // INFO
-#define LOG_LEVEL_HTTP 3       // INFO
-#define LOG_LEVEL_SYSTEM 4     // DEBUG
+#define LOG_LEVEL_HARDWARE 5   // INFO
+#define LOG_LEVEL_SOFTWARE 5   // INFO
+#define LOG_LEVEL_HTTP 5       // INFO
+#define LOG_LEVEL_SYSTEM 5     // DEBUG
 
 // Log Level Definitions
 #define LOG_OFF 0
@@ -18,25 +18,24 @@
 #define LOG_DEBUG 4
 #define LOG_TRACE 5
 
-#define TRACE 1
-#define TRACE_HARDWARE 1
-#define TRACE_API_CALL 1
 #define STATUS_LED 22
 
 #define USE_WIFIMANAGER 1
-#define USE_MCP_BUTTON_ARRAY 1
+
 #define USE_ANALOG_SLIDER 1
-#define PIN_ANALOG_SLIDER {GPIO_NUM_34,GPIO_NUM_35,GPIO_NUM_39,GPIO_NUM_36}
-#define ANALOG_SLIDER_INVERTED {false, true, false,false}
+#define PIN_ANALOG_SLIDER { GPIO_NUM_34 ,GPIO_NUM_35 } //,GPIO_NUM_39,GPIO_NUM_36}
+#define ANALOG_SLIDER_INVERTED { false   , true} //, false,false}
 
 #define USE_Rotary 0
 #define PIN_Rotary {0,0}
 
-#define USE_GAMEPAD 1
+#define USE_GAMEPAD 0
 #define PIN_GAMEPAD {GPIO_NUM_32, GPIO_NUM_33, GPIO_NUM_12}
+
 #define USE_Button 0
  
 
+#define USE_MCP_BUTTON_ARRAY 0
 // we use MCP23S17 expanders for buttons with pin adressing using pins A0,A1,A2
 // SCK, MISO, MOSI, CS // Default SPI pins for LOLIN32 boards
 #define PIN_SPI {GPIO_NUM_18 , GPIO_NUM_19, GPIO_NUM_23 , GPIO_NUM_5} 
@@ -55,14 +54,6 @@
 
 #ifndef BUILD_DATE
 #define BUILD_DATE __DATE__ " " __TIME__
-#endif
-
-// function
-
-#if TRACE
-#define TRACE_PRINT(...) Serial.printf(__VA_ARGS__)
-#else
-#define TRACE_PRINT(...)
 #endif
 
 // === Advanced Logging Macros ===

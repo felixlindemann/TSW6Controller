@@ -46,7 +46,7 @@ void TSWLever::setinverted(bool inv)
 // --- Update and send value ---
 void TSWLever::updateAndSend()
 {
-  LOG_HW_TRACE("TSWLever Update: %s\n", getId().c_str());
+  LOG_SW_TRACE("TSWLever Update: %s\n", getId().c_str());
   if (update())
   {
     int percent = getPercentValue(); // 0–100 %
@@ -66,7 +66,7 @@ void TSWLever::updateAndSend()
 
       spider->setControllerValue(controllerName, tswValue);
       lastSentValue = tswValue;
-      LOG_HW_TRACE("%s: raw=%d pct=%d -> TSW=%.3f\n",
+      LOG_SW_TRACE("%s: raw=%d pct=%d -> TSW=%.3f\n",
                     controllerName.c_str(), raw, percent, tswValue);
     }
     else

@@ -23,23 +23,6 @@
 TSWSpider* tswSpider = new TSWSpider();
 unsigned long lastUpdate_MAINLOOP = 0;
  
-GamepadJoystick joy1("Gamepad1", GPIO_NUM_33, GPIO_NUM_32, GPIO_NUM_12);
-MCPButtonArray buttonArray("BTN", 50);
-
-void updateSld(AnalogSlider &sld)
-{
-  if (sld.update())
-  {
-    int raw = sld.getCurrentRawValue();
-    int pct = sld.getPercentValue();
-    float norm = sld.getValue();
-    LOG_HW_DEBUG("AnalogSlider %s changed: raw=%d pct=%d norm=%.3f reason=%s\n",
-                  sld.getId().c_str(), raw, pct, norm, sld.getChangeReason());
-  }
-}
-
-
-
 void setup()
 {
   Serial.begin(115200);
@@ -51,9 +34,9 @@ void setup()
 
   LOG_SYS_INFO("Booting...\n");
   LOG_SYS_DEBUG("   ESP32 SDK Version: %s\n", ESP.getSdkVersion());
-  LOG_SYS_DEBUG("   Board: %s\n", ARDUINO_BOARD);
-  LOG_SYS_DEBUG("   Build #: %s\n", BUILD_NUMBER);
-  LOG_SYS_DEBUG("   Datum: %s\n", BUILD_DATE);
+  LOG_SYS_DEBUG("   Board: " ARDUINO_BOARD "\n");
+  LOG_SYS_DEBUG("   Build #: %d\n", BUILD_NUMBER);
+  LOG_SYS_DEBUG("   Datum: " BUILD_DATE "\n");
   LOG_SYS_INFO("   Device: %s\n", DEVICE_NAME);
   LOG_SYS_DEBUG("   Free Heap: %d bytes\n", ESP.getFreeHeap());
 

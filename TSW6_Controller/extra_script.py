@@ -5,10 +5,18 @@
 # -------------------------------------------------------------
 
 import os, time
+from datetime import datetime
 from SCons.Script import Import, DefaultEnvironment # type: ignore
 
 Import("env")
 env = DefaultEnvironment()
+
+# -------------------------------------------------------------
+# === Build Date Handling ===
+# -------------------------------------------------------------
+build_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+env.Append(BUILD_FLAGS=[f'-DBUILD_DATE=\\"{build_date}\\"'])
+print(f"==> Build date set to {build_date}")
 
 # -------------------------------------------------------------
 # === Build Number Handling ===

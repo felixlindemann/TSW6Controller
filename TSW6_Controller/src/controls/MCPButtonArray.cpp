@@ -6,10 +6,6 @@
 #include "repo/controlsRepo.h"
 #include "MCPButtonArray.h"
 
-#ifndef TRACE_THROTTLE_MS
-#define TRACE_THROTTLE_MS 150
-#endif
-
 MCPButtonArray::MCPButtonArray(const String &idPrefix, unsigned int debounceMs)
     : Control(idPrefix, 0),
       mcp1(spiPins[3], MCP_HW_ADDRESS_1),
@@ -83,9 +79,7 @@ void MCPButtonArray::initExpanderOrHalt(MCP23S17 &mcp, uint8_t chipIndex)
         haltWithMcpError(chipIndex, buf);
     }
 
-#if TRACE
-    Serial.printf("[OK] MCP23S17 #%u init OK (read16=0x%04X)\n", chipIndex, observed);
-#endif
+    LOG_HW_DEBUG("MCP23S17 #%u init OK (read16=0x%04X)\n", chipIndex, observed);
 }
 
 void MCPButtonArray::begin()
@@ -93,11 +87,8 @@ void MCPButtonArray::begin()
     // Explicit SPI pins for ESP32
     SPI.begin(spiPins[0], spiPins[1], spiPins[2], spiPins[3]);
 
-#if TRACE
-    Serial.println("[DBG] SPI configuration before MCP init:");
-    Serial.printf("      SCK:  %u\n      MISO: %u\n      MOSI: %u\n      CS:   %u\n",
-                  spiPins[0], spiPins[1], spiPins[2], spiPins[3]);
-#endif
+    LOG_HW_DEBUG("SPI configuration: SCK=%u MISO=%u MOSI=%u CS=%u\n",
+                 spiPins[0], spiPins[1], spiPins[2], spiPins[3]);
 
     // Init each configured expander
     for (uint8_t e = 0; e < expanderCount; e++)
@@ -130,10 +121,6 @@ bool MCPButtonArray::update()
     bool changed = false;
     lastChangeReason = "none";
     lastEventIndex = -1;
-
-#if TRACE
-    static unsigned long lastTrace[TOTAL_BUTTONS] = {0};
-#endif
 
     const uint16_t pins_1 = expanders[0]->read16();
     const uint16_t pins_2 = expanders[1]->read16();
