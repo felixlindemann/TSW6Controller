@@ -351,7 +351,8 @@ void startNormalMode()
     if (WiFi.status() == WL_CONNECTED)
     {
         LOG_SYS_INFO("WiFi connected!\n");
-        LOG_SYS_INFO("IP: %s\n", WiFi.localIP().toString().c_str());
+        String ip = WiFi.localIP().toString();
+        LOG_SYS_INFO("IP: %s\n", ip.c_str());
         server.on("/", handleRoot);
         server.on("/config", handleConfigPage);
         server.on("/status", handleStatusPage);
