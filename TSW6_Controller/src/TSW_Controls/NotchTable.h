@@ -43,6 +43,7 @@ class NotchTable
 {
 private:
     String controller;
+    String label;
     std::vector<Notch> positions;
 
 public:
@@ -52,5 +53,21 @@ public:
     size_t getPositionCount() const { return positions.size(); }
 
     float mapToTSW(int percent) const;
+    
     const String &getControllerName() const { return controller; }
+    void setControllerName(const String &name) { controller = name; }
+    void setLabel(const String &lbl) { label = lbl; }
+    const String &getLabel() const { return label; }
+    void getPositions(std::vector<Notch> &out) const { out = positions; }
+    void clear() { positions.clear(); }
+    
+    /**
+     * Helper to create a simple binary button mapping (Released/Pressed).
+     * @param controllerName  The TSW controller name
+     * @param releasedValue   Value when button is released (default: 0.0)
+     * @param pressedValue    Value when button is pressed (default: 1.0)
+     */
+    void setupBinaryButton(const String &controllerName, 
+                           float releasedValue = 0.0f, 
+                           float pressedValue = 1.0f);
 };

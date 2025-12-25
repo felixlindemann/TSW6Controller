@@ -107,7 +107,7 @@
 #define USE_ROTARY           0
 #define USE_GAMEPAD          0
 #define USE_BUTTON           0
-#define USE_MCP_BUTTON_ARRAY 0
+#define USE_MCP_BUTTON_ARRAY 1
 
 // MCP23S17 Expander Configuration
 #define NUM_MCP_EXPANDERS 2

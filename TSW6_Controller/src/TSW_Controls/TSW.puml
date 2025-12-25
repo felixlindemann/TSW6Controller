@@ -1,11 +1,14 @@
 @startuml
-title TSW Controller – Class Architecture (v5 detailed)
+title TSW Controller – Class Architecture (v6 - 2025-12-25)
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
 
 /' ========================
-Base Hardware Layer
-======================== '/
+   Base Hardware Layer
+   ======================== '/
 
-interface Control {
+interface Control <<interface>> {
   - controlId : String
   - pin : uint8_t
   --
@@ -16,7 +19,7 @@ interface Control {
   + getValue() : float
 }
 
-package ArduinoControls {
+package "Hardware Controls" as hw <<Rectangle>> {
 
   class AnalogSlider {
     - minValue : int
@@ -29,18 +32,14 @@ package ArduinoControls {
     - lastRead : unsigned long
     - interval : unsigned long
     --
-    + AnalogSlider(id : String, gpio : uint8_t)
+    + AnalogSlider(id, gpio)
     + begin() : void
     + update() : bool
     + getValue() : float
     + getRawValue() : int
     + getPercentValue() : int
-    + setZero(z : int)
-    + setMinValue(v : int)
-    + setMaxValue(v : int)
-    + setInterval(i : unsigned long)
-    + setInverted(inv : bool)
-    + setRawThreshold(t : int)
+    + setInverted(inv) : void
+    + setRawThreshold(t) : void
   }
 
   class Button {
@@ -50,7 +49,7 @@ package ArduinoControls {
     - debounceDelay : unsigned int
     - lastEvent : int
     --
-    + Button(id : String, gpio : uint8_t, debounce : unsigned int = 50)
+    + Button(id, gpio, debounce)
     + begin() : void
     + update() : bool
     + getValue() : float
@@ -61,16 +60,10 @@ package ArduinoControls {
   class RotaryKnob {
     - pinA : uint8_t
     - pinB : uint8_t
-    - lastA : int
-    - lastB : int
     - position : int
-    - lastEventTime : unsigned long
-    - debounce : unsigned long
     - lastDelta : int
-    - minValue : float
-    - maxValue : float
     --
-    + RotaryKnob(id : String, a : uint8_t, b : uint8_t, debounceMs : unsigned long = 2)
+    + RotaryKnob(id, a, b, debounceMs)
     + begin() : void
     + update() : bool
     + getValue() : float
@@ -80,18 +73,12 @@ package ArduinoControls {
   }
 
   class GamepadJoystick {
-    - xPin : uint8_t
-    - yPin : uint8_t
+    - xPin, yPin : uint8_t
     - xRaw, yRaw : int
     - xZero, yZero : int
-    - xDeadZone, yDeadZone : int
-    - xThreshold, yThreshold : int
-    - xInverted, yInverted : bool
-    - lastRead : unsigned long
-    - interval : unsigned long
-    - buttonPressed, lastButtonPressed : bool
+    - buttonPressed : bool
     --
-    + GamepadJoystick(id : String, x : uint8_t, y : uint8_t, button : uint8_t)
+    + GamepadJoystick(id, x, y, button)
     + begin() : void
     + update() : bool
     + getValue() : float
@@ -99,20 +86,39 @@ package ArduinoControls {
     + getYCentered() : int
     + isPressed() : bool
     + calibrateCenter() : void
-    + setXInverted(inv : bool)
-    + setYInverted(inv : bool)
-    + setInterval(i : unsigned long)
   }
+
+  class MCPButtonArray {
+    - spiPins[4] : uint8_t
+    - mcp1, mcp2 : MCP23S17
+    - expanders[] : MCP23S17*
+    - states[] : bool
+    - lastReading : uint32_t
+    - changedPins : uint32_t
+    - debounceDelayMs : unsigned int
+    --
+    + MCPButtonArray(idPrefix, debounceMs)
+    + begin() : void
+    + update() : bool
+    + getValue() : float
+    + getButtonState(index) : bool
+    + getLastReading() : uint32_t
+    + getChangedPins() : uint32_t
+  }
+  note left of MCPButtonArray
+    Hardware layer for MCP23S17 expanders.
+    Shared instance used by TSWMCPButton.
+    Handles SPI communication & debouncing.
+  end note
 }
 
-package TSW {
-
+package "TSW Layer" as tsw <<Rectangle>> {
 
   /' ========================
-  Mapping & Network Layer
-  ======================== '/
+     Mapping & Network
+     ======================== '/
 
-  class Notch {
+  class Notch <<struct>> {
     + label : String
     + tswValue : float
     + rangeMin : int
@@ -121,105 +127,155 @@ package TSW {
 
   class NotchTable {
     - controller : String
-    - positions : std::vector<Notch>
+    - label : String
+    - positions : vector<Notch>
     --
-    + loadFromFile(path : String) : bool
-    + loadFromArray(list : std::vector<Notch>) : bool
+    + loadFromFile(path) : bool
+    + loadFromArray(list) : bool
     + hasPositions() : bool
-    + mapToTSW(percent : int) : float
+    + getPositionCount() : size_t
+    + mapToTSW(percent) : float
     + getControllerName() : String
+    + setControllerName(name) : void
+    + setupBinaryButton(name, released, pressed) : void
   }
 
   class TSWSpider {
     - host : String
+    - dtgCommKey : String
     - port : uint16_t
     --
-    + begin(ip : String, port : uint16_t = 31270) : void
-    + setControllerValue(controller : String, value : float) : bool
-    + getControllerValue(controller : String) : float
+    + begin(ip, port) : void
+    + setControllerValue(controller, value) : bool
+    + getControllerValue(controller) : float
   }
-
-
+  note bottom of TSWSpider
+    HTTP client for TSW API.
+    Uses DTGCommKey for authentication.
+    Host/port loaded from config.json.
+  end note
 
   /' ========================
-  TSW Application Layer
-  ======================== '/
+     TSW Application Layer
+     ======================== '/
 
   abstract class TSWControl {
-    - controllerName : String
-    - notches : NotchTable
-    - spider : TSWSpider*
-    - lastSentValue : float
+    # controllerName : String
+    # notches : NotchTable
+    # spider : TSWSpider*
+    # lastSentValue : float
     --
-    + loadNotches(filePath : String) : void
+    + TSWControl(ctrl, spider)
+    + loadNotches(filePath) : void
     + getControllerName() : String
-    # sendValueToTSW(tswValue : float) : void
+    # sendValueToTSW(tswValue) : void
+    ..
+    {abstract} + updateAndSend() : void
   }
+  note right of TSWControl
+    Abstract base for all TSW controls.
+    Enables runtime discovery for
+    web service configuration.
+  end note
 
   class TSWLever {
+    - lastSentValue : float
+    --
+    + TSWLever(pin, ctrl, spider)
+    + loadNotches(filePath) : void
     + updateAndSend() : void
+    + setControllerName(ctrl) : void
+    + setInverted(inv) : void
   }
 
   class TSWButton {
+    - lastSentValue : float
+    --
+    + TSWButton(pin, ctrl, spider)
+    + loadNotches(filePath) : void
     + updateAndSend() : void
   }
 
   class TSWRotaryKnob {
+    --
+    + TSWRotaryKnob(pinA, pinB, ctrl, spider)
     + updateAndSend() : void
   }
+
+  class TSWMCPButton {
+    - buttonArrayRef : MCPButtonArray*
+    - buttonIndex : uint8_t
+    - lastState : bool
+    --
+    + TSWMCPButton(id, spider, buttonArray, index)
+    + getButtonIndex() : uint8_t
+    + hasChanged() : bool
+    + isPressed() : bool
+    + updateAndSend() : void
+    + setMapping(released, pressed) : void
+  }
+  note bottom of TSWMCPButton
+    Virtual button referencing a
+    single pin in shared MCPButtonArray.
+    Enables per-button configuration.
+  end note
 
   class TSWGamePadControl {
     - axisX : AnalogSlider
     - axisY : AnalogSlider
     - button : Button
     - hasButton : bool
-    - notchX : NotchTable
-    - notchY : NotchTable
+    - notchX, notchY : NotchTable
     - buttonNotches : NotchTable
-    - controllerX : String
-    - controllerY : String
+    - controllerX, controllerY : String
     - controllerButton : String
     --
-    + TSWGamePadControl(pinXA, pinXB, ctrlX, ctrlY, spider)
-    + TSWGamePadControl(pinXA, pinXB, pinBtn, ctrlX, ctrlY, ctrlBtn, spider)
+    + TSWGamePadControl(pinX, pinY, ctrlX, ctrlY, spider)
+    + TSWGamePadControl(pinX, pinY, pinBtn, ctrlX, ctrlY, ctrlBtn, spider)
     + begin() : void
     + loadNotchesX(file) : void
     + loadNotchesY(file) : void
     + loadButtonNotches(file) : void
     + updateAndSend() : void
   }
-  note left of TSWGamePadControl
-    GamePad-style control combining:
-    - two AnalogSliders for X/Y axes
-    - optional NotchTables per axis
-    - optional integrated button (default 0/1)
-  end note
-
 }
 
+
+
+/' ========================
+   Relationships
+   ======================== '/
+
+' Hardware inheritance
 Control <|-down- AnalogSlider
 Control <|-down- Button
 Control <|-down- RotaryKnob
 Control <|-down- GamepadJoystick
-
-
+Control <|-down- MCPButtonArray
+' TSW inheritance
 TSWControl <|-up- TSWLever
 TSWControl <|-up- TSWButton
 TSWControl <|-up- TSWRotaryKnob
+TSWControl <|-up- TSWMCPButton
 TSWControl <|-up- TSWGamePadControl
 
-TSWControl *-down- NotchTable
+' Multi-inheritance (hardware + TSW)
+AnalogSlider <|-down- TSWLever
+Button <|-down- TSWButton
+RotaryKnob <|-down- TSWRotaryKnob
+GamepadJoystick <|-down- TSWGamePadControl
+
+' Compositions & dependencies
+TSWControl *-right- NotchTable : has
 TSWControl -down-> TSWSpider : uses
+NotchTable *-down- Notch : contains
 
-TSWLever -up-|> AnalogSlider
-TSWButton -up-|> Button
-TSWRotaryKnob -up-|> RotaryKnob
-TSWGamePadControl -up-|> GamepadJoystick
+' MCPButton references shared array (not owns)
+TSWMCPButton o-down-> MCPButtonArray : references
 
-TSWGamePadControl *-up- AnalogSlider : axisX / axisY
+' GamePad compositions
+TSWGamePadControl *-up- AnalogSlider : axisX/axisY
 TSWGamePadControl *-up- Button : optional
 TSWGamePadControl *-down- NotchTable : axis/button mappings
-
-NotchTable *-down- Notch
 
 @enduml

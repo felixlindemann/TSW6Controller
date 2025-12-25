@@ -57,3 +57,26 @@ float NotchTable::mapToTSW(int percent) const {
   }
   return 0.0f;
 }
+
+void NotchTable::setupBinaryButton(const String &controllerName, 
+                                   float releasedValue, 
+                                   float pressedValue) {
+  controller = controllerName;
+  positions.clear();
+  
+  // Released state: 0% (button not pressed)
+  Notch released;
+  released.label = "Released";
+  released.tswValue = releasedValue;
+  released.rangeMin = 0;
+  released.rangeMax = 49;
+  positions.push_back(released);
+  
+  // Pressed state: 100% (button pressed)
+  Notch pressed;
+  pressed.label = "Pressed";
+  pressed.tswValue = pressedValue;
+  pressed.rangeMin = 50;
+  pressed.rangeMax = 100;
+  positions.push_back(pressed);
+}
