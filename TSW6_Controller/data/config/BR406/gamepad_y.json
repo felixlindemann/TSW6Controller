@@ -1,0 +1,6 @@
+{
+  "controller": "/JoystickY",
+  "label": "Gamepad Y-Achse",
+  "inverted": true,
+  "positions": []
+}

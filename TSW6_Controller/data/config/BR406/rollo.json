@@ -1,5 +1,6 @@
 {
   "controller": "/set/CurrentDrivableActor/Blinds.InputValue",
+  "inverted": true,
   "positions": [
     {
       "label": "Notch 0",

@@ -1,0 +1,17 @@
+{
+  "controller": "/JoystickButton",
+  "label": "Gamepad Button",
+  "inverted": false,
+  "positions": [
+    {
+      "label": "Released",
+      "tsw": 0,
+      "range": [0, 0]
+    },
+    {
+      "label": "Pressed",
+      "tsw": 1,
+      "range": [1, 1]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "controller": "/JoystickX",
+  "label": "Gamepad X-Achse",
+  "inverted": true,
+  "positions": []
+}

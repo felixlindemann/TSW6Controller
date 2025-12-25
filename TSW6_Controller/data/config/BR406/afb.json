@@ -1,5 +1,6 @@
 {
   "controller": "/set/CurrentDrivableActor/AFB_Controller.InputValue",
+  "inverted": false,
   "positions": [
     {
       "label": "0 km/h",

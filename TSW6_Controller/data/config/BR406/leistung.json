@@ -1,35 +1,20 @@
 {
   "controller": "/set/CurrentDrivableActor/Throttle.InputValue",
+  "inverted": true,
   "positions": [
     {
       "label": "Aus",
       "tsw": 0,
       "range": [
-        0,
-        5
-      ]
-    },
-    {
-      "label": "Min",
-      "tsw": 0.10000000149011612,
-      "range": [
-        6,
+        0, 
         10
       ]
-    },
-    {
-      "label": "6%",
-      "tsw": 0.10999999940395355,
-      "range": [
-        11,
-        15
-      ]
-    },
+    }, 
     {
       "label": "8",
-      "tsw": 0.1360899657011032,
+      "tsw": 0.10000000149011612,
       "range": [
-        16,
+        11,
         20
       ]
     },
