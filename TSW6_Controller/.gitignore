@@ -6,3 +6,6 @@
 
 /out/*
 /bak/*
+
+# Ignore configuration with credentials
+data/config.json

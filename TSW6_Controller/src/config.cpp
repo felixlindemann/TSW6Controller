@@ -1,4 +1,8 @@
 #include "config.h"
+#include "ConfigStore.h"
+
+// Global config instance
+Config cfg;
 
 const char* DEVICE_NAME = "TSW-Controller";
 const char* DEVICE_SSID = "your-ssid";

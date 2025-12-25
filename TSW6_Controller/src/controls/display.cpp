@@ -1,5 +1,6 @@
 #include "display.h"
 
+#if USEDISPLAY
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH110X.h>
@@ -49,3 +50,5 @@ void loopDisplay()
 {
     // nothing for now
 }
+
+#endif // USEDISPLAY

@@ -21,15 +21,8 @@
 #define LOG2DISPLAY(...)
 #endif
 TSWSpider* tswSpider = new TSWSpider();
+unsigned long lastUpdate_MAINLOOP = 0;
  
-
-/* 
-AnalogSlider sld1("AFB", GPIO_NUM_34);
-AnalogSlider sld2("Leistungsregler", GPIO_NUM_35);
-AnalogSlider sld3("Rollo", GPIO_NUM_39);
-AnalogSlider sld4("Bremse", GPIO_NUM_36);
-*/
-
 GamepadJoystick joy1("Gamepad1", GPIO_NUM_33, GPIO_NUM_32, GPIO_NUM_12);
 MCPButtonArray buttonArray("BTN", 50);
 
@@ -44,6 +37,8 @@ void updateSld(AnalogSlider &sld)
                   sld.getId().c_str(), raw, pct, norm, sld.getChangeReason());
   }
 }
+
+
 
 void setup()
 {
@@ -72,6 +67,7 @@ void setup()
   LOG2DISPLAY("WiFi Manager started");
 #endif
   
+  tswSpider->begin();
   // tswSpider.begin();
   SETUP_ANALOG_SLIDER(tswSpider);
   SETUP_GAMEPAD(tswSpider);
@@ -91,16 +87,15 @@ void loop()
 #if USE_WIFIMANAGER
   loopWiFiManager();
 #endif
+ 
 
-  static unsigned long lastUpdate = 0;
   unsigned long now = millis();
-
-  if (now - lastUpdate < 50)
+  if (now - lastUpdate_MAINLOOP < 50)
     return; // 20 Hz polling rate
-    
+  TRACE_PRINT("--- MAIN LOOP ---\n");
   UPDATE_ANALOG_SLIDER();
   UPDATE_GAMEPAD();
    UPDATE_MCP_BUTTON_ARRAY();
-  lastUpdate = now;
+  lastUpdate_MAINLOOP = now;
   delay(1);
 }

@@ -9,10 +9,12 @@
 #include "ConfigStore.h"
 #include "CaptivePortal.h"
 
-
 WebServer server(80);
 DNSServer dnsServer;
 bool apMode = false;
+
+unsigned long lastWIFI_AP_CHECK = 0;
+unsigned long lastWIFI_HEARTBEAT = 0;
 
 // -------------------------------------------------------------
 // mDNS
@@ -54,7 +56,6 @@ bool checkLogoFile()
     f.close();
     return true;
 }
- 
 
 // -------------------------------------------------------------
 // HTML (Offline „Bootstrap“-Look) + JS für Mode-Umschaltung
@@ -369,13 +370,27 @@ void startNormalMode()
 // -------------------------------------------------------------
 // Startlogik & Loop
 // -------------------------------------------------------------
+
+bool gpioAPHandler()
+{
+
+    lastWIFI_AP_CHECK = millis();
+    bool setupPressed = (digitalRead(SETUP_BUTTON) == LOW);
+    if (setupPressed)
+    {
+        TRACE_PRINT("Setup Button pressed - Starting AP Mode\n");
+        startAPMode();
+    }
+    return setupPressed;
+}
+
 void beginWiFiManager()
 {
     pinMode(SETUP_BUTTON, INPUT_PULLUP);
     pinMode(STATUS_LED, OUTPUT);
     checkLogoFile();
 
-    bool setupPressed = (digitalRead(SETUP_BUTTON) == LOW);
+    bool setupPressed = gpioAPHandler();
     if (setupPressed)
     {
         startAPMode();
@@ -397,15 +412,21 @@ void beginWiFiManager()
 
 void loopWiFiManager()
 {
+    // nur alle 1 Sekunde auf Button prüfen
+    if (millis() - lastWIFI_AP_CHECK > cfg.wifiApCheckIntervall)
+    {
+        gpioAPHandler();
+    }
     dnsServer.processNextRequest();
     server.handleClient();
 
-    static unsigned long last = 0;
-    if (millis() - last > 10000)
+#if TRACE
+    if (millis() - lastWIFI_HEARTBEAT > cfg.wifiHeartbeatIntervall)
     {
-        last = millis();
-        Serial.printf("=== HEARTBEAT ===  Modus: %s | IP: %s\n",
-                      apMode ? "AP" : "Client",
-                      (apMode ? WiFi.softAPIP() : WiFi.localIP()).toString().c_str());
+        lastWIFI_HEARTBEAT = millis();
+        TRACE_PRINT("=== HEARTBEAT ===  Modus: %s | IP: %s\n",
+                    apMode ? "AP" : "Client",
+                    (apMode ? WiFi.softAPIP() : WiFi.localIP()).toString().c_str());
     }
+#endif
 }

@@ -20,22 +20,27 @@ inline void setup_analogSlider(TSWSpider *spider)
     sld1 = new TSWLever(ANALOG_PINS[0], "AFB", spider);
     sld1->setInverted(ANALOG_INV[0]);
     ControlRegistry::registerControl(sld1, "TSWLever");
+    sld1->loadNotches("/config/BR406/afb.json");
 
     sld2 = new TSWLever(ANALOG_PINS[1], "Leistungsregler", spider);
     sld2->setInverted(ANALOG_INV[1]);
     ControlRegistry::registerControl(sld2, "TSWLever");
+    sld2->loadNotches("/config/BR406/leistung.json");
 
     sld3 = new TSWLever(ANALOG_PINS[2], "Rollo", spider);
     sld3->setInverted(ANALOG_INV[2]);
     ControlRegistry::registerControl(sld3, "TSWLever");
+    sld3->loadNotches("/config/BR406/rollo.json");
 
     sld4 = new TSWLever(ANALOG_PINS[3], "Bremse", spider);
     sld4->setInverted(ANALOG_INV[3]);
     ControlRegistry::registerControl(sld4, "TSWLever");
+    sld4->loadNotches("/config/BR406/bremse.json");
 }
 
 inline void update_analogSlider()
 {
+    TRACE_PRINT("--- ANALOG SLIDER UPDATE ---\n");
     sld1->updateAndSend();
     sld2->updateAndSend();
     sld3->updateAndSend();

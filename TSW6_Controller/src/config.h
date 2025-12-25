@@ -8,11 +8,11 @@
 #define TRACE_API_CALL 1
 #define STATUS_LED 22
 
-#define USE_WIFIMANAGER 0
+#define USE_WIFIMANAGER 1
 #define USE_MCP_BUTTON_ARRAY 1
 #define USE_ANALOG_SLIDER 1
 #define PIN_ANALOG_SLIDER {GPIO_NUM_34,GPIO_NUM_35,GPIO_NUM_39,GPIO_NUM_36}
-#define ANALOG_SLIDER_INVERTED {true, true, false,false}
+#define ANALOG_SLIDER_INVERTED {false, true, false,false}
 
 #define USE_Rotary 0
 #define PIN_Rotary {0,0}

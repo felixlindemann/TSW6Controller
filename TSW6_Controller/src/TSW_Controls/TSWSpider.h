@@ -30,10 +30,11 @@
 class TSWSpider {
 private:
   String host;
+  String dtgCommKey;
   uint16_t port = 31270;
 
 public:
-  void begin(const String &ip, uint16_t port = 31270);
+  void begin(const String &ip = "10.10.78.96", uint16_t port = 3127);
   bool setControllerValue(const String &controller, float value);
   float getControllerValue(const String &controller);
 };

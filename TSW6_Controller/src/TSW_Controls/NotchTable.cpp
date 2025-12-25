@@ -10,18 +10,18 @@
 #include "NotchTable.h"
 
 bool NotchTable::loadFromFile(const String &path) {
-  File file = SD.open(path);
+  File file = LittleFS.open(path);
   if (!file) {
-    Serial.println("[NotchTable] Failed to open file: " + path);
+    TRACE_PRINT("[NotchTable] Failed to open file: %s\n", path.c_str());
     return false;
   }
 
-  StaticJsonDocument<1024> doc;
+  DynamicJsonDocument doc(8192);
   DeserializationError err = deserializeJson(doc, file);
   file.close();
 
   if (err) {
-    Serial.println("[NotchTable] JSON parse error");
+    TRACE_PRINT("[NotchTable] JSON parse error: %s\n", err.c_str());
     return false;
   }
 

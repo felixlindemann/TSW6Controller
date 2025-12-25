@@ -26,7 +26,13 @@ TSWLever::TSWLever(uint8_t pin, const String &ctrl, TSWSpider *s)
 // --- Load Notch configuration ---
 void TSWLever::loadNotches(const String &filePath)
 {
-  notches.loadFromFile(filePath);
+  if (notches.loadFromFile(filePath)) {
+    setControllerName(notches.getControllerName());
+    TRACE_PRINT("[TSWLever] %s: Loaded %d notches for controller: %s\n", 
+                getId().c_str(), notches.getPositionCount(), controllerName.c_str());
+  } else {
+    TRACE_PRINT("[TSWLever] Failed to load notches from: %s\n", filePath.c_str());
+  }
 }
 
 void TSWLever::setControllerName(const String &controller)
@@ -40,6 +46,7 @@ void TSWLever::setinverted(bool inv)
 // --- Update and send value ---
 void TSWLever::updateAndSend()
 {
+  TRACE_PRINT("--- TSWLever Update: %s ---\n", getId().c_str());
   if (update())
   {
     int percent = getPercentValue(); // 0–100 %
@@ -50,6 +57,8 @@ void TSWLever::updateAndSend()
     {
       // Significant raw change detected
       lastChangeReason = "raw change";
+      TRACE_PRINT("[TSWLever] %s (%s): Significant raw change detected: last=%d  current=%d --> %d%\n",
+              getId().c_str(), controllerName.c_str(), lastRaw, raw, percent);
 
       float tswValue = notches.hasPositions()
                            ? notches.mapToTSW(percent)
@@ -59,7 +68,7 @@ void TSWLever::updateAndSend()
       lastSentValue = tswValue;
 
 #if TRACE && TRACE_HARDWARE
-      Serial.printf("[TSWLever] %s: raw=%d pct=%d -> TSW=%.3f\n",
+      TRACE_PRINT("[TSWLever] %s: raw=%d pct=%d -> TSW=%.3f\n",
                     controllerName.c_str(), raw, percent, tswValue);
 #endif
     }

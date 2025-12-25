@@ -45,6 +45,7 @@ void AnalogSlider::begin()
 // --- Update ---
 bool AnalogSlider::update()
 {
+  TRACE_PRINT("--- AnalogSlider Update: %s ---\n", getId().c_str());
   lastChangeReason = "none";
   unsigned long now = millis();
   if (now - lastRead < interval)

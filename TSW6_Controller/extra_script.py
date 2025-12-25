@@ -55,7 +55,12 @@ def before_upload(source, target, env):
     """Hook: Vor jedem Firmware-Upload ausführen."""
     if need_uploadfs():
         print("\n=== Detected changes in /data → uploading LittleFS ===")
-        env.Execute("pio run --target uploadfs")
+        # Verwende den internen PlatformIO-Pfad
+        platformio_exe = env.subst("$PYTHONEXE").replace("python", "platformio")
+        if not os.path.exists(platformio_exe):
+            # Fallback: Nutze den Standard-PlatformIO-Pfad
+            platformio_exe = os.path.expanduser("~/.platformio/penv/bin/platformio")
+        env.Execute(f'"{platformio_exe}" run --target uploadfs')
         os.makedirs(os.path.dirname(marker_file), exist_ok=True)
         with open(marker_file, "w") as mf:
             mf.write(time.ctime())

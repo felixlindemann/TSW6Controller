@@ -28,7 +28,7 @@
 #include <vector>
 #include <ArduinoJson.h>
 #include <FS.h>
-#include <SD.h>
+#include <LittleFS.h>
 #include "../config.h"
 
 struct Notch
@@ -49,6 +49,7 @@ public:
     bool loadFromFile(const String &path);
     bool loadFromArray(const std::vector<Notch> &list);
     bool hasPositions() const { return !positions.empty(); }
+    size_t getPositionCount() const { return positions.size(); }
 
     float mapToTSW(int percent) const;
     const String &getControllerName() const { return controller; }

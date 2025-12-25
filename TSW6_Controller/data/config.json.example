@@ -1,0 +1,10 @@
+{
+  "wifi": {
+    "ssid": "your-wifi-ssid",
+    "password": "your-wifi-password",
+    "apMode": false,
+    "wifiApCheckIntervall": 1000,
+    "wifiHeartbeatIntervall": 10000
+  },
+  "apiKey": "r2SpKhypgdoIfJQkgbCdKnXV2mKbrAwAqug3A3K/UA8="
+}
