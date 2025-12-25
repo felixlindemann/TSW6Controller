@@ -160,7 +160,6 @@ package "TSW Layer" as tsw <<Rectangle>> {
      ======================== '/
 
   abstract class TSWControl {
-    # controllerName : String
     # notches : NotchTable
     # spider : TSWSpider*
     # lastSentValue : float
@@ -168,12 +167,15 @@ package "TSW Layer" as tsw <<Rectangle>> {
     + TSWControl(ctrl, spider)
     + loadNotches(filePath) : void
     + getControllerName() : String
+    + setControllerName(ctrl) : void
     # sendValueToTSW(tswValue) : void
     ..
     {abstract} + updateAndSend() : void
   }
   note right of TSWControl
     Abstract base for all TSW controls.
+    controllerName is stored in NotchTable
+    (single source of truth).
     Enables runtime discovery for
     web service configuration.
   end note
@@ -184,7 +186,6 @@ package "TSW Layer" as tsw <<Rectangle>> {
     + TSWLever(pin, ctrl, spider)
     + loadNotches(filePath) : void
     + updateAndSend() : void
-    + setControllerName(ctrl) : void
     + setInverted(inv) : void
   }
 
@@ -221,23 +222,34 @@ package "TSW Layer" as tsw <<Rectangle>> {
   end note
 
   class TSWGamePadControl {
-    - axisX : AnalogSlider
-    - axisY : AnalogSlider
-    - button : Button
+    - gamepad : GamepadJoystick
     - hasButton : bool
-    - notchX, notchY : NotchTable
+    - notchX : NotchTable
+    - notchY : NotchTable
     - buttonNotches : NotchTable
-    - controllerX, controllerY : String
-    - controllerButton : String
+    - lastSentTime : unsigned long
+    - sendInterval : unsigned long
     --
-    + TSWGamePadControl(pinX, pinY, ctrlX, ctrlY, spider)
-    + TSWGamePadControl(pinX, pinY, pinBtn, ctrlX, ctrlY, ctrlBtn, spider)
+    + TSWGamePadControl(id, pinX, pinY, pinBtn, ctrlX, ctrlY, ctrlBtn, spider, sendInt)
     + begin() : void
     + loadNotchesX(file) : void
     + loadNotchesY(file) : void
     + loadButtonNotches(file) : void
     + updateAndSend() : void
+    + setControllerX(ctrl) : void
+    + setControllerY(ctrl) : void
+    + setControllerButton(ctrl) : void
+    + getControllerX() : String
+    + getControllerY() : String
+    + getControllerButton() : String
+    + setXInverted(inv) : void
+    + setYInverted(inv) : void
   }
+  note bottom of TSWGamePadControl
+    3-axis control (X, Y, Button).
+    Each axis stores its controllerName
+    in its own NotchTable.
+  end note
 }
 
 

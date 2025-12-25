@@ -22,25 +22,28 @@
 
 class TSWControl {
 protected:
-  String controllerName;
-  NotchTable notches;
+  NotchTable notches;        // NotchTable holds the controllerName
   TSWSpider* spider;
   float lastSentValue;
 
 public:
   TSWControl(const String& ctrl, TSWSpider* s)
-      : controllerName(ctrl), spider(s), lastSentValue(-999.0f) {}
+      : spider(s), lastSentValue(-999.0f) {
+    notches.setControllerName(ctrl);  // Set controllerName in NotchTable
+  }
 
   virtual ~TSWControl() = default;
 
   void loadNotches(const String& filePath) { notches.loadFromFile(filePath); }
-  const String& getControllerName() const { return controllerName; }
+  
+  // controllerName now comes from NotchTable (single source of truth)
+  const String& getControllerName() const { return notches.getControllerName(); }
+  void setControllerName(const String& ctrl) { notches.setControllerName(ctrl); }
 
 protected:
   void sendValueToTSW(float tswValue) {
     if (!spider) return; 
-      spider->setControllerValue(controllerName, tswValue);
-      lastSentValue = tswValue;
-     
+    spider->setControllerValue(notches.getControllerName(), tswValue);
+    lastSentValue = tswValue;
   }
 };

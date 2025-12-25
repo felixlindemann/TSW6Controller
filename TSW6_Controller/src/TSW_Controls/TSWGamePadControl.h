@@ -37,13 +37,9 @@ private:
   GamepadJoystick gamepad;
   bool hasButton;
 
-  NotchTable notchX;
-  NotchTable notchY;
-  NotchTable buttonNotches;
-
-  String controllerX;
-  String controllerY;
-  String controllerButton;
+  NotchTable notchX;         // Holds controllerX name
+  NotchTable notchY;         // Holds controllerY name
+  NotchTable buttonNotches;  // Holds controllerButton name
 
   unsigned long lastSentTime;
   unsigned long sendInterval;
@@ -63,11 +59,15 @@ public:
   void loadButtonNotches(const String& filePath);
   void updateAndSend();
 
-  void setControllerX(const String& controller);
-  void setControllerY(const String& controller);
-  void setControllerButton(const String& controller);
-    
+  // Controller names are now stored in NotchTables (single source of truth)
+  void setControllerX(const String& controller) { notchX.setControllerName(controller); }
+  void setControllerY(const String& controller) { notchY.setControllerName(controller); }
+  void setControllerButton(const String& controller) { buttonNotches.setControllerName(controller); }
+  
+  const String& getControllerX() const { return notchX.getControllerName(); }
+  const String& getControllerY() const { return notchY.getControllerName(); }
+  const String& getControllerButton() const { return buttonNotches.getControllerName(); }
 
-  void setXInverted(bool inv) { gamepad.setXInverted(inv); };
-  void setYInverted(bool inv) { gamepad.setYInverted(inv); }; 
+  void setXInverted(bool inv) { gamepad.setXInverted(inv); }
+  void setYInverted(bool inv) { gamepad.setYInverted(inv); }
 };

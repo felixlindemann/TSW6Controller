@@ -27,18 +27,13 @@ TSWLever::TSWLever(uint8_t pin, const String &ctrl, TSWSpider *s)
 void TSWLever::loadNotches(const String &filePath)
 {
   if (notches.loadFromFile(filePath)) {
-    setControllerName(notches.getControllerName());
     LOG_SW_INFO("%s: Loaded %d notches for controller: %s\n", 
-                getId().c_str(), notches.getPositionCount(), controllerName.c_str());
+                getId().c_str(), notches.getPositionCount(), notches.getControllerName().c_str());
   } else {
     LOG_SW_ERROR("%s: Failed to load notches from: %s\n", getId().c_str(), filePath.c_str());
   }
 }
 
-void TSWLever::setControllerName(const String &controller)
-{
-  controllerName = controller;
-}
 void TSWLever::setinverted(bool inv)
 {
   AnalogSlider::setInverted(inv);
@@ -58,16 +53,16 @@ void TSWLever::updateAndSend()
       // Significant raw change detected
       lastChangeReason = "raw change";
       LOG_HW_DEBUG("%s (%s): raw change: last=%d current=%d --> %d%%\n",
-              getId().c_str(), controllerName.c_str(), lastRaw, raw, percent);
+              getId().c_str(), getControllerName().c_str(), lastRaw, raw, percent);
 
       float tswValue = notches.hasPositions()
                            ? notches.mapToTSW(percent)
                            : percent / 100.0f;
 
-      spider->setControllerValue(controllerName, tswValue);
+      spider->setControllerValue(getControllerName(), tswValue);
       lastSentValue = tswValue;
       LOG_SW_TRACE("%s: raw=%d pct=%d -> TSW=%.3f\n",
-                    controllerName.c_str(), raw, percent, tswValue);
+                    getControllerName().c_str(), raw, percent, tswValue);
     }
     else
     {

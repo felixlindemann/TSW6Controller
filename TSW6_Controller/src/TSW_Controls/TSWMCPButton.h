@@ -91,7 +91,7 @@ public:
         
         LOG_SW_DEBUG("TSWMCPButton[%d] %s: %s -> %.2f\n", 
                      buttonIndex, 
-                     controllerName.c_str(),
+                     getControllerName().c_str(),
                      isPressed() ? "PRESSED" : "RELEASED",
                      value);
     }
@@ -100,6 +100,6 @@ public:
      * Configure button mapping with custom values
      */
     void setMapping(float releasedValue = 0.0f, float pressedValue = 1.0f) {
-        notches.setupBinaryButton(controllerName, releasedValue, pressedValue);
+        notches.setupBinaryButton(getControllerName(), releasedValue, pressedValue);
     }
 };

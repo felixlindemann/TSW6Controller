@@ -42,7 +42,7 @@ void TSWButton::updateAndSend()
 
   if (fabs(value - lastSentValue) > 0.001f)
   {
-    spider->setControllerValue(controllerName, value);
+    spider->setControllerValue(getControllerName(), value);
     lastSentValue = value;
   }
 }

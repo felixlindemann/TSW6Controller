@@ -21,12 +21,14 @@ TSWGamePadControl::TSWGamePadControl(const String &id,
     : TSWControl(id, s),
       gamepad(id + "_HW", pinX, pinY, pinButton),
       hasButton(true),
-      controllerX(ctrlX),
-      controllerY(ctrlY),
-      controllerButton(ctrlBtn),
       lastSentTime(0),
       sendInterval(sendInt)
 {
+  // Store controller names in their respective NotchTables
+  notchX.setControllerName(ctrlX);
+  notchY.setControllerName(ctrlY);
+  buttonNotches.setControllerName(ctrlBtn);
+  
   // Default NotchTable for button
   Notch released = {"Released", 0.0f, 0, 0};
   Notch pressed = {"Pressed", 1.0f, 1, 1};
@@ -43,19 +45,6 @@ void TSWGamePadControl::begin()
 void TSWGamePadControl::loadNotchesX(const String &filePath) { notchX.loadFromFile(filePath); }
 void TSWGamePadControl::loadNotchesY(const String &filePath) { notchY.loadFromFile(filePath); }
 void TSWGamePadControl::loadButtonNotches(const String &filePath) { buttonNotches.loadFromFile(filePath); }
-
-
-
-
-  void TSWGamePadControl::setControllerX(const String& controller){
-    controllerX = controller;
-  }
-  void TSWGamePadControl::setControllerY(const String& controller){
-    controllerY = controller;
-  }
-  void TSWGamePadControl::setControllerButton(const String& controller){
-    controllerButton = controller;
-  }
     
 
 // --- Update and send ---
@@ -84,7 +73,7 @@ void TSWGamePadControl::updateAndSend()
   // Button
   float btnVal = buttonNotches.mapToTSW(gamepad.isPressed() ? 1.0f : 0.0f);
 
-  spider->setControllerValue(controllerX, tswX);
-  spider->setControllerValue(controllerY, tswY);
-  spider->setControllerValue(controllerButton, btnVal);
+  spider->setControllerValue(notchX.getControllerName(), tswX);
+  spider->setControllerValue(notchY.getControllerName(), tswY);
+  spider->setControllerValue(buttonNotches.getControllerName(), btnVal);
 }
