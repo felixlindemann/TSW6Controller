@@ -14,8 +14,8 @@ env = DefaultEnvironment()
 # -------------------------------------------------------------
 # === Build Date Handling ===
 # -------------------------------------------------------------
-build_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-env.Append(BUILD_FLAGS=[f'-DBUILD_DATE=\\"{build_date}\\"'])
+build_date = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+env.Append(CPPDEFINES=[("BUILD_DATE", f'\\"{build_date}\\"')])
 print(f"==> Build date set to {build_date}")
 
 # -------------------------------------------------------------
