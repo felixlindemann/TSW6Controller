@@ -40,10 +40,10 @@ bool TSWSpider::setControllerValue(const String &controller, float value) {
   String url = "http://" + host + ":" + String(port) 
                 + controller + "?inputValue=" + String(value, 16);
 
-  TRACE_PRINT("[Spider] Setting controller value: %s -> %f\n.    DTGCommKey: %s: url=%s\n", controller.c_str(), value, dtgCommKey.c_str(), url.c_str());
   HTTPClient http;
   http.begin(url);
   http.addHeader("DTGCommKey", dtgCommKey);
+  http.setTimeout(300); // Nur 300ms warten statt 5000ms default
   int code = http.GET();
   http.end();
 

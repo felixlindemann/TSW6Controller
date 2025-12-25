@@ -13,7 +13,7 @@ inline void setup_GamePad(TSWSpider *spider)
 {
   static TSWGamePadControl pad1("pad1",
                                 GAMEPAD_PINS[0], GAMEPAD_PINS[1], GAMEPAD_PINS[2],
-                                "JoystickX", "JoystickY", "JoystickButton",
+                                "/JoystickX", "/JoystickY", "/JoystickButton",
                                 spider);
 
   pad1.setXInverted(true);
