@@ -21,22 +21,22 @@ inline void setup_analogSlider(TSWSpider *spider)
     sld1 = new TSWLever(ANALOG_PINS[0], "AFB", spider);
     ControlRegistry::registerControl(sld1, "TSWLever");
     TSWControlRegistry::registerControl(sld1);
-    sld1->loadNotches("/config/BR406/afb.json");
+    sld1->loadNotches("/config/CurrentLoco/afb.json");
 
     sld2 = new TSWLever(ANALOG_PINS[1], "Leistungsregler", spider);
     ControlRegistry::registerControl(sld2, "TSWLever");
     TSWControlRegistry::registerControl(sld2);
-    sld2->loadNotches("/config/BR406/leistung.json");
+    sld2->loadNotches("/config/CurrentLoco/leistung.json");
 
     sld3 = new TSWLever(ANALOG_PINS[2], "Rollo", spider);
     ControlRegistry::registerControl(sld3, "TSWLever");
     TSWControlRegistry::registerControl(sld3);
-    sld3->loadNotches("/config/BR406/rollo.json");
+    sld3->loadNotches("/config/CurrentLoco/rollo.json");
 
     sld4 = new TSWLever(ANALOG_PINS[3], "Bremse", spider);
     ControlRegistry::registerControl(sld4, "TSWLever");
     TSWControlRegistry::registerControl(sld4);
-    sld4->loadNotches("/config/BR406/bremse.json");
+    sld4->loadNotches("/config/CurrentLoco/bremse.json");
 }
 
 inline void update_analogSlider()

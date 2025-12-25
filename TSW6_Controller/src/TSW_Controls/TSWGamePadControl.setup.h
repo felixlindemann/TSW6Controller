@@ -18,9 +18,9 @@ inline void setup_GamePad(TSWSpider *spider)
                                 spider);
 
   // Note: inverted settings are now loaded from JSON config files
-  pad1.loadNotchesX("/config/BR406/gamepad_x.json");
-  pad1.loadNotchesY("/config/BR406/gamepad_y.json");
-  pad1.loadButtonNotches("/config/BR406/gamepad_btn.json");
+  pad1.loadNotchesX("/config/CurrentLoco/gamepad_x.json");
+  pad1.loadNotchesY("/config/CurrentLoco/gamepad_y.json");
+  pad1.loadButtonNotches("/config/CurrentLoco/gamepad_btn.json");
   
   pad1.begin();
   pad1Ptr = &pad1;
