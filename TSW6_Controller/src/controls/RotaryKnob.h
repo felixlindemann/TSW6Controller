@@ -48,5 +48,9 @@ public:
   float getValue() const override;
 
   void reset();
+  
+  // --- Getters for JSON serialization ---
+  uint8_t getPinA() const { return pinA; }
+  uint8_t getPinB() const { return pinB; }
 };
 

@@ -40,6 +40,37 @@ public:
   const String& getControllerName() const { return notches.getControllerName(); }
   void setControllerName(const String& ctrl) { notches.setControllerName(ctrl); }
 
+  /**
+   * Get the control type name for JSON serialization.
+   * Override in derived classes.
+   */
+  virtual const char* getControlType() const { return "TSWControl"; }
+
+  /**
+   * Get the hardware type name for JSON serialization.
+   * Override in derived classes.
+   */
+  virtual const char* getHardwareType() const { return "Unknown"; }
+
+  /**
+   * Serialize control to JSON for REST API.
+   * Derived classes should call base and add their specific fields.
+   */
+  virtual void toJson(JsonObject& doc) const {
+    doc["controllerName"] = notches.getControllerName();
+    doc["type"] = getControlType();
+    doc["hardwareType"] = getHardwareType();
+    doc["lastSentValue"] = lastSentValue;
+    
+    JsonObject notchObj = doc.createNestedObject("notches");
+    notches.toJson(notchObj);
+  }
+
+  /**
+   * Abstract method - all TSW controls must implement updateAndSend.
+   */
+  virtual void updateAndSend() = 0;
+
 protected:
   void sendValueToTSW(float tswValue) {
     if (!spider) return; 

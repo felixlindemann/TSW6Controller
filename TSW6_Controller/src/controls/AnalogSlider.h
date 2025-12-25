@@ -76,4 +76,7 @@ public:
   void setInterval(unsigned long i);
   void setInverted(bool inv);
   void setRawThreshold(int t);
+  
+  // --- Getters for JSON serialization ---
+  bool getInverted() const { return inverted; }
 };

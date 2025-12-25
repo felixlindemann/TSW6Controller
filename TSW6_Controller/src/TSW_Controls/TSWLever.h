@@ -37,7 +37,18 @@ public:
   TSWLever(uint8_t pin, const String& ctrl, TSWSpider* s);
 
   void loadNotches(const String& filePath);
-  void updateAndSend();
+  void updateAndSend() override;
 
   void setinverted(bool inv);
+
+  // --- JSON Serialization ---
+  const char* getControlType() const override { return "TSWLever"; }
+  const char* getHardwareType() const override { return "AnalogSlider"; }
+  
+  void toJson(JsonObject& doc) const override {
+    TSWControl::toJson(doc);
+    doc["pin"] = AnalogSlider::getPin();
+    doc["currentPercent"] = AnalogSlider::getPercentValue();
+    doc["inverted"] = AnalogSlider::getInverted();
+  }
 };

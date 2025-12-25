@@ -47,5 +47,18 @@ public:
   bool update() override;
 
   // --- TSW mapping ---
-  void updateAndSend();
+  void updateAndSend() override;
+
+  // --- JSON Serialization ---
+  const char* getControlType() const override { return "TSWRotaryKnob"; }
+  const char* getHardwareType() const override { return "RotaryEncoder"; }
+  
+  void toJson(JsonObject& doc) const override {
+    TSWControl::toJson(doc);
+    doc["pinA"] = RotaryKnob::getPinA();
+    doc["pinB"] = RotaryKnob::getPinB();
+    doc["minValue"] = minValue;
+    doc["maxValue"] = maxValue;
+    doc["currentTSWValue"] = currentTSWValue;
+  }
 };

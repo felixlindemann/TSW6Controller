@@ -57,7 +57,7 @@ public:
   void loadNotchesX(const String& filePath);
   void loadNotchesY(const String& filePath);
   void loadButtonNotches(const String& filePath);
-  void updateAndSend();
+  void updateAndSend() override;
 
   // Controller names are now stored in NotchTables (single source of truth)
   void setControllerX(const String& controller) { notchX.setControllerName(controller); }
@@ -70,4 +70,33 @@ public:
 
   void setXInverted(bool inv) { gamepad.setXInverted(inv); }
   void setYInverted(bool inv) { gamepad.setYInverted(inv); }
+
+  // --- JSON Serialization ---
+  const char* getControlType() const override { return "TSWGamePadControl"; }
+  const char* getHardwareType() const override { return "GamepadJoystick"; }
+  
+  void toJson(JsonObject& doc) const override {
+    TSWControl::toJson(doc);
+    
+    // GamePad has 3 axes with separate controllers
+    JsonObject axes = doc.createNestedObject("axes");
+    
+    JsonObject xAxis = axes.createNestedObject("x");
+    xAxis["controller"] = notchX.getControllerName();
+    JsonObject xNotches = xAxis.createNestedObject("notches");
+    notchX.toJson(xNotches);
+    
+    JsonObject yAxis = axes.createNestedObject("y");
+    yAxis["controller"] = notchY.getControllerName();
+    JsonObject yNotches = yAxis.createNestedObject("notches");
+    notchY.toJson(yNotches);
+    
+    JsonObject btnAxis = axes.createNestedObject("button");
+    btnAxis["controller"] = buttonNotches.getControllerName();
+    JsonObject btnNotches = btnAxis.createNestedObject("notches");
+    buttonNotches.toJson(btnNotches);
+    
+    doc["xInverted"] = gamepad.getXInverted();
+    doc["yInverted"] = gamepad.getYInverted();
+  }
 };

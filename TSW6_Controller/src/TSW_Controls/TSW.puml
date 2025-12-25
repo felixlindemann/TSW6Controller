@@ -138,6 +138,7 @@ package "TSW Layer" as tsw <<Rectangle>> {
     + getControllerName() : String
     + setControllerName(name) : void
     + setupBinaryButton(name, released, pressed) : void
+    + toJson(doc) : void
   }
 
   class TSWSpider {
@@ -168,6 +169,9 @@ package "TSW Layer" as tsw <<Rectangle>> {
     + loadNotches(filePath) : void
     + getControllerName() : String
     + setControllerName(ctrl) : void
+    + {abstract} getControlType() : String
+    + {abstract} getHardwareType() : String
+    + {virtual} toJson(doc) : void
     # sendValueToTSW(tswValue) : void
     ..
     {abstract} + updateAndSend() : void
@@ -176,8 +180,8 @@ package "TSW Layer" as tsw <<Rectangle>> {
     Abstract base for all TSW controls.
     controllerName is stored in NotchTable
     (single source of truth).
-    Enables runtime discovery for
-    web service configuration.
+    toJson() enables REST API for
+    Angular configuration UI.
   end note
 
   class TSWLever {

@@ -80,3 +80,18 @@ void NotchTable::setupBinaryButton(const String &controllerName,
   pressed.rangeMax = 100;
   positions.push_back(pressed);
 }
+
+void NotchTable::toJson(JsonObject &doc) const {
+  doc["controller"] = controller;
+  doc["label"] = label;
+  
+  JsonArray arr = doc.createNestedArray("positions");
+  for (const auto &n : positions) {
+    JsonObject notch = arr.createNestedObject();
+    notch["label"] = n.label;
+    notch["tsw"] = n.tswValue;
+    JsonArray range = notch.createNestedArray("range");
+    range.add(n.rangeMin);
+    range.add(n.rangeMax);
+  }
+}

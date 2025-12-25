@@ -78,4 +78,10 @@ public:
   void setXInverted(bool inv) { xInverted = inv; }
   void setYInverted(bool inv) { yInverted = inv; }
   void setInterval(unsigned long i) { interval = i; }
+  
+  // --- Getters for JSON serialization ---
+  bool getXInverted() const { return xInverted; }
+  bool getYInverted() const { return yInverted; }
+  uint8_t getXPin() const { return xPin; }
+  uint8_t getYPin() const { return yPin; }
 };

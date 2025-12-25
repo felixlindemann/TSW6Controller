@@ -78,7 +78,7 @@ public:
      * Update and send value to TSW if state changed.
      * Call this in the main loop after buttonArrayRef->update().
      */
-    void updateAndSend() {
+    void updateAndSend() override {
         if (!spider || !buttonArrayRef) return;
         if (!hasChanged()) return;
 
@@ -101,5 +101,15 @@ public:
      */
     void setMapping(float releasedValue = 0.0f, float pressedValue = 1.0f) {
         notches.setupBinaryButton(getControllerName(), releasedValue, pressedValue);
+    }
+
+    // --- JSON Serialization ---
+    const char* getControlType() const override { return "TSWMCPButton"; }
+    const char* getHardwareType() const override { return "MCP23S17"; }
+    
+    void toJson(JsonObject& doc) const override {
+        TSWControl::toJson(doc);
+        doc["buttonIndex"] = buttonIndex;
+        doc["isPressed"] = isPressed();
     }
 };

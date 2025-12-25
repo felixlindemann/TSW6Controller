@@ -60,7 +60,7 @@ public:
     const String &getLabel() const { return label; }
     void getPositions(std::vector<Notch> &out) const { out = positions; }
     void clear() { positions.clear(); }
-    
+
     /**
      * Helper to create a simple binary button mapping (Released/Pressed).
      * @param controllerName  The TSW controller name
@@ -70,4 +70,10 @@ public:
     void setupBinaryButton(const String &controllerName, 
                            float releasedValue = 0.0f, 
                            float pressedValue = 1.0f);
+
+    /**
+     * Serialize NotchTable to JSON for REST API.
+     * @param doc  JsonObject to populate
+     */
+    void toJson(JsonObject &doc) const;
 };

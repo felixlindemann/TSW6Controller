@@ -37,5 +37,15 @@ public:
   TSWButton(uint8_t pin, const String &ctrl, TSWSpider *s);
 
   void loadNotches(const String &filePath);
-  void updateAndSend();
+  void updateAndSend() override;
+
+  // --- JSON Serialization ---
+  const char* getControlType() const override { return "TSWButton"; }
+  const char* getHardwareType() const override { return "GPIO"; }
+  
+  void toJson(JsonObject& doc) const override {
+    TSWControl::toJson(doc);
+    doc["pin"] = Button::getPin();
+    doc["isPressed"] = Button::isPressed();
+  }
 };
