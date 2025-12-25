@@ -82,8 +82,8 @@
 #define PIN_SPI_CS   GPIO_NUM_5
 
 // --- Analog Inputs (ADC1 pins: GPIO 32-39) ---
-#define PIN_ANALOG_SLIDER      { GPIO_NUM_34, GPIO_NUM_35 }
-#define ANALOG_SLIDER_INVERTED { false, true }
+#define PIN_ANALOG_SLIDER      { GPIO_NUM_34, GPIO_NUM_35, GPIO_NUM_39, GPIO_NUM_36 }
+#define ANALOG_SLIDER_INVERTED { false, true, false, true } // Invert reading for each slider if needed
 
 // --- Rotary Encoder ---
 #define PIN_ROTARY_CLK GPIO_NUM_0
