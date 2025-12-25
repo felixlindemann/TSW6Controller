@@ -15,10 +15,10 @@ MCPButtonArray::MCPButtonArray(const String &idPrefix, unsigned int debounceMs)
       lastPollTimeMs(0)
 {
     // Wire expander pointer array
-#if (NUM_OF_EXPANDERS >= 1)
+#if (NUM_MCP_EXPANDERS >= 1)
     expanders[0] = &mcp1;
 #endif
-#if (NUM_OF_EXPANDERS >= 2)
+#if (NUM_MCP_EXPANDERS >= 2)
     expanders[1] = &mcp2;
 #endif
 

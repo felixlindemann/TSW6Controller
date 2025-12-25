@@ -12,9 +12,7 @@ DisplayLog::DisplayLog(uint8_t lineCount,
 
 void DisplayLog::init()
 {
-    // extern const int I2C_SDA;
-    // extern const int I2C_SCL;
-    Wire.setPins(I2C_SDA, I2C_SCL);
+    Wire.setPins(PIN_I2C_SDA, PIN_I2C_SCL);
     Wire.begin();
 }
 

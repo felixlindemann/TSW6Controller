@@ -21,14 +21,18 @@
 #include "../ConfigStore.h"
 
 void TSWSpider::begin(const String &ip, uint16_t p) {
-  host = ip;
-  port = p;
+  // Load config first to get server settings
+  loadConfig();
+  
+  // Use provided IP/port or fall back to config values
+  host = ip.length() > 0 ? ip : String(cfg.server.host);
+  port = p > 0 ? p : cfg.server.port;
   
   LOG_HTTP_INFO("Spider API initializing...\n");
   
-  // Load dtgCommKey from config.json
-  if (loadConfig()) {
-    dtgCommKey = String(cfg.apiKey);
+  // Load dtgCommKey from config
+  if (strlen(cfg.server.apiKey) > 0) {
+    dtgCommKey = String(cfg.server.apiKey);
     LOG_HTTP_DEBUG("Loaded API key from config (length: %d)\n", dtgCommKey.length());
   } else {
     dtgCommKey = "r2SpKhypgdoIfJQkgbCdKnXV2mKbrAwAqug3A3K/UA8="; // fallback

@@ -11,8 +11,10 @@
 
 void setupCaptivePortal(WebServer &server, DNSServer &dnsServer, IPAddress apIP)
 {
+    String redirectUrl = "http://" + apIP.toString() + "/";
+    
     // DNS leitet *alles* auf unseren AP um
-    dnsServer.start(53, "*", apIP);
+    dnsServer.start(DEFAULT_DNS_PORT, "*", apIP);
     Serial.println("DNS-Server gestartet (Wildcard auf " + apIP.toString() + ")");
 
     // === Apple (iOS / macOS) ===
@@ -36,17 +38,17 @@ void setupCaptivePortal(WebServer &server, DNSServer &dnsServer, IPAddress apIP)
 
     // === Android ===
     // Android prüft /generate_204
-    server.on("/generate_204", [&server]()
+    server.on("/generate_204", [&server, apIP]()
               {
         Serial.println("[Captive] Android Detect");
-        server.sendHeader("Location", "http://" MyIP "/", true);
+        server.sendHeader("Location", "http://" + apIP.toString() + "/", true);
         server.send(302, "text/plain", ""); });
 
     // Alternative Android-Checks
-    server.on("/gen_204", [&server]()
+    server.on("/gen_204", [&server, apIP]()
               {
         Serial.println("[Captive] Android gen_204");
-        server.sendHeader("Location", "http://" MyIP "/", true);
+        server.sendHeader("Location", "http://" + apIP.toString() + "/", true);
         server.send(302, "text/plain", ""); });
 
     // === Windows ===
@@ -55,33 +57,33 @@ void setupCaptivePortal(WebServer &server, DNSServer &dnsServer, IPAddress apIP)
         Serial.println("[Captive] Windows NCSI");
         server.send(200, "text/plain", "Microsoft NCSI"); });
 
-    server.on("/connecttest.txt", [&server]()
+    server.on("/connecttest.txt", [&server, apIP]()
               {
         Serial.println("[Captive] Windows ConnectTest");
-        server.sendHeader("Location", "http://" MyIP "/", true);
+        server.sendHeader("Location", "http://" + apIP.toString() + "/", true);
         server.send(302, "text/plain", ""); });
 
     // === Chrome OS ===
-    server.on("/connectivitycheck.html", [&server]()
+    server.on("/connectivitycheck.html", [&server, apIP]()
               {
         Serial.println("[Captive] ChromeOS Check");
-        server.sendHeader("Location", "http://" MyIP "/", true);
+        server.sendHeader("Location", "http://" + apIP.toString() + "/", true);
         server.send(302, "text/plain", ""); });
 
-    server.on("/generate204", [&server]()
+    server.on("/generate204", [&server, apIP]()
               {
         Serial.println("[Captive] ChromeOS generate204");
-        server.sendHeader("Location", "http://" MyIP "/", true);
+        server.sendHeader("Location", "http://" + apIP.toString() + "/", true);
         server.send(302, "text/plain", ""); });
 
     // === Catch-All für nicht definierte Pfade ===
-    server.onNotFound([&server]()
+    server.onNotFound([&server, apIP]()
                       {
         String uri = server.uri();
         Serial.printf("[Captive] Unbekannter Pfad: %s -> Redirect nach /\n", uri.c_str());
         
         // Manche Geräte brauchen http:// in der Location
-        server.sendHeader("Location", "http://" MyIP "/", true);
+        server.sendHeader("Location", "http://" + apIP.toString() + "/", true);
         server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
         server.send(302, "text/plain", ""); });
 

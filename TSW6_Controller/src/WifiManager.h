@@ -21,9 +21,9 @@ unsigned long lastWIFI_HEARTBEAT = 0;
 // -------------------------------------------------------------
 void startMDNS()
 {
-    if (MDNS.begin(MDNS_NAME))
+    if (MDNS.begin(cfg.device.mdnsName))
     {
-        LOG_SYS_INFO("mDNS active: http://%s.local\n", MDNS_NAME);
+        LOG_SYS_INFO("mDNS active: http://%s.local\n", cfg.device.mdnsName);
     }
     else
     {
@@ -128,7 +128,7 @@ String buildPage(String title, String body)
     html += "<div class='card'>" + body + "</div>";
     html += "<div class='hint'>Erreiche mich auch unter "
             "<a href='http://" +
-            String(MDNS_NAME) + ".local'>" + String(MDNS_NAME) + ".local</a></div>";
+            String(cfg.device.mdnsName) + ".local'>" + String(cfg.device.mdnsName) + ".local</a></div>";
     html += "</div></body></html>";
     return html;
 }
@@ -149,7 +149,7 @@ void buildSetupForm(String &out)
 
     out += "</div>";
     out += "<h1>";
-    out += DEVICE_NAME;
+    out += cfg.device.name;
     out += " Setup</h1>";
 
     // Formular
@@ -161,7 +161,7 @@ void buildSetupForm(String &out)
     // 1) Modus
     out += "<label>Betriebsart</label>";
     out += "<select id='mode' name='mode' onchange='onModeChange()'>";
-    if (cfg.apModePreferred)
+    if (cfg.wifi.apModePreferred)
     {
         out += "<option value='sta'>Client</option><option value='ap' selected>Access Point</option>";
     }
@@ -182,19 +182,19 @@ void buildSetupForm(String &out)
         ss.replace("<", "&lt;");
         ss.replace(">", "&gt;");
         out += "<option value='" + ss + "'";
-        if (strlen(cfg.ssid) && ss == String(cfg.ssid))
+        if (strlen(cfg.wifi.ssid) && ss == String(cfg.wifi.ssid))
             out += " selected";
         out += ">" + ss + "</option>";
     }
     out += "</select>";
 
     out += "<label>Passwort</label>";
-    out += "<input type='password' class='form-control' name='pass' value='" + String(cfg.pass) + "'>";
+    out += "<input type='password' class='form-control' name='pass' value='" + String(cfg.wifi.password) + "'>";
     out += "</div>"; // wifiBlock
 
     // 3) API-Key
     out += "<label>TSW API Key</label>";
-    out += "<input type='text' class='form-control' name='api' value='" + String(cfg.apiKey) + "'>";
+    out += "<input type='text' class='form-control' name='api' value='" + String(cfg.server.apiKey) + "'>";
 
     // Buttons
     out += "<div class='btnbar'>";
@@ -210,7 +210,7 @@ void handleRoot()
     String body;
     body.reserve(7000);
     buildSetupForm(body);
-    server.send(200, "text/html", buildPage(String("Setup - ") + DEVICE_NAME, body));
+    server.send(200, "text/html", buildPage(String("Setup - ") + cfg.device.name, body));
 }
 
 void handleConfigPage()
@@ -218,7 +218,7 @@ void handleConfigPage()
     String body;
     body.reserve(7000);
     buildSetupForm(body); // identisch zur Setup-Seite
-    server.send(200, "text/html", buildPage(String("Config - ") + DEVICE_NAME, body));
+    server.send(200, "text/html", buildPage(String("Config - ") + cfg.device.name, body));
 }
 
 void handleStatusPage()
@@ -239,12 +239,12 @@ void handleStatusPage()
     body += "<label>Modus</label><div>" + String(apMode ? "Access Point" : "Client") + "</div>";
     String currSsid = WiFi.SSID();
     if (!currSsid.length())
-        currSsid = cfg.ssid;
+        currSsid = cfg.wifi.ssid;
     body += "<label>SSID</label><div>" + currSsid + "</div>";
     body += "<label>IP</label><div>" + String(apMode ? WiFi.softAPIP().toString() : WiFi.localIP().toString()) + "</div>";
     body += "<label>Signal (RSSI)</label><div>" + String(WiFi.RSSI()) + " dBm</div>";
     body += "<div class='btnbar'><a class='btn btn-ghost' href='/reboot'>Neustart</a></div>";
-    server.send(200, "text/html", buildPage(String("Status - ") + DEVICE_NAME, body));
+    server.send(200, "text/html", buildPage(String("Status - ") + cfg.device.name, body));
 }
 
 // -------------------------------------------------------------
@@ -257,10 +257,10 @@ void handleSave()
     String pass = server.arg("pass");
     String api = server.arg("api");
 
-    cfg.apModePreferred = (mode == "ap");
-    ssid.toCharArray(cfg.ssid, sizeof(cfg.ssid));
-    pass.toCharArray(cfg.pass, sizeof(cfg.pass));
-    api.toCharArray(cfg.apiKey, sizeof(cfg.apiKey));
+    cfg.wifi.apModePreferred = (mode == "ap");
+    ssid.toCharArray(cfg.wifi.ssid, sizeof(cfg.wifi.ssid));
+    pass.toCharArray(cfg.wifi.password, sizeof(cfg.wifi.password));
+    api.toCharArray(cfg.server.apiKey, sizeof(cfg.server.apiKey));
     saveConfig();
 
     server.send(200, "text/html",
@@ -303,15 +303,14 @@ void serverGetLogo()
 void startAPMode()
 {
     apMode = true;
-    digitalWrite(STATUS_LED, LOW);
+    digitalWrite(PIN_STATUS_LED, LOW);
     WiFi.mode(WIFI_AP);
 
     LOG_SYS_INFO("Starting Access Point mode...\n");
-    WiFi.softAP(DEVICE_SSID, DEVICE_PASS);
+    WiFi.softAP(DEFAULT_AP_SSID, DEFAULT_AP_PASSWORD);
     delay(300);
-    // IPAddress apIP(192, 168, 4, 1);
     IPAddress apIP = IPAddress();
-    apIP.fromString(MyIP);
+    apIP.fromString(DEFAULT_AP_IP);
 
     WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
     delay(200);
@@ -327,7 +326,7 @@ void startAPMode()
     server.begin();
     startMDNS();
 
-    LOG_SYS_INFO("Webserver running on http://" MyIP " and http://TSWController.local\n");
+    LOG_SYS_INFO("Webserver running on http://%s and http://%s.local\n", DEFAULT_AP_IP, cfg.device.mdnsName);
 }
 
 // -------------------------------------------------------------
@@ -337,10 +336,10 @@ void startNormalMode()
 {
     apMode = false;
     WiFi.mode(WIFI_STA);
-    WiFi.begin(cfg.ssid, cfg.pass);
-    digitalWrite(STATUS_LED, HIGH);
+    WiFi.begin(cfg.wifi.ssid, cfg.wifi.password);
+    digitalWrite(PIN_STATUS_LED, HIGH);
 
-    LOG_SYS_INFO("Connecting to %s...\n", cfg.ssid);
+    LOG_SYS_INFO("Connecting to %s...\n", cfg.wifi.ssid);
     unsigned long start = millis();
     while (WiFi.status() != WL_CONNECTED && millis() - start < 12000)
     {
@@ -377,10 +376,10 @@ bool gpioAPHandler()
 {
     LOG_HW_TRACE("     Prüfe Setup-Button für AP-Modus\n");
     lastWIFI_AP_CHECK = millis();
-    bool setupPressed = (digitalRead(SETUP_BUTTON) == LOW);
+    bool setupPressed = (digitalRead(PIN_SETUP_BUTTON) == LOW);
     if (setupPressed)
     {
-        LOG_HW_TRACE("         sSetup Button pressed - Starting AP Mode\n");
+        LOG_HW_TRACE("         Setup Button pressed - Starting AP Mode\n");
         startAPMode();
     }
     return setupPressed;
@@ -389,8 +388,8 @@ bool gpioAPHandler()
 void beginWiFiManager()
 {
     LOG_SYS_INFO("=== WiFi Manager Starting ===\n");    
-    pinMode(SETUP_BUTTON, INPUT_PULLUP);
-    pinMode(STATUS_LED, OUTPUT);
+    pinMode(PIN_SETUP_BUTTON, INPUT_PULLUP);
+    pinMode(PIN_STATUS_LED, OUTPUT);
     checkLogoFile();
 
     bool setupPressed = gpioAPHandler();
@@ -401,7 +400,7 @@ void beginWiFiManager()
     else if (loadConfig())
     {
         // Mit vorhandener Config den bevorzugten Modus fahren
-        if (cfg.apModePreferred)
+        if (cfg.wifi.apModePreferred)
             startAPMode();
         else
             startNormalMode();
@@ -418,14 +417,14 @@ void beginWiFiManager()
 void loopWiFiManager()
 {
     // nur alle 1 Sekunde auf Button prüfen
-    if (millis() - lastWIFI_AP_CHECK > cfg.wifiApCheckIntervall)
+    if (millis() - lastWIFI_AP_CHECK > cfg.wifi.apCheckInterval)
     {
         gpioAPHandler();
     }
     dnsServer.processNextRequest();
     server.handleClient();
 
-    if (millis() - lastWIFI_HEARTBEAT > cfg.wifiHeartbeatIntervall)
+    if (millis() - lastWIFI_HEARTBEAT > cfg.wifi.heartbeatInterval)
     {
         lastWIFI_HEARTBEAT = millis();
         String ip = apMode ? WiFi.softAPIP().toString() : WiFi.localIP().toString();

@@ -12,7 +12,7 @@
   
 #include "controls/MCPButtonArray.h"
 
-#if USEDISPLAY
+#if USE_DISPLAY
 #include "controls/display.h"
 #define SETUPDISPLAY() setupDisplay()
 #define LOG2DISPLAY(...) gDisplayLog.printLine(__VA_ARGS__)
@@ -37,7 +37,7 @@ void setup()
   LOG_SYS_DEBUG("   Board: " ARDUINO_BOARD "\n");
   LOG_SYS_DEBUG("   Build #: %d\n", BUILD_NUMBER);
   LOG_SYS_DEBUG("   Datum: " BUILD_DATE "\n");
-  LOG_SYS_INFO("   Device: %s\n", DEVICE_NAME);
+  LOG_SYS_INFO("   Device: %s\n", cfg.device.name);
   LOG_SYS_DEBUG("   Free Heap: %d bytes\n", ESP.getFreeHeap());
 
   // Use full 0–3.3V range for ADC1 pins (GPIO 32–39)

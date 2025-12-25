@@ -2,7 +2,7 @@
  * @file MCPButtonArray.h
  * @brief Multi-button input handler for MCP23S17 port expanders (Rob Tillaart library).
  *
- * - Supports NUM_OF_EXPANDERS MCP23S17 chips
+ * - Supports NUM_MCP_EXPANDERS MCP23S17 chips
  * - 16 buttons per chip
  * - Software debouncing per button
  * - Registers itself + proxies in ControlRegistry
@@ -22,16 +22,12 @@
 #include "MCP23S17.h"
 #include "../config.h"
 
-#ifndef PIN_SPI
-#define PIN_SPI { GPIO_NUM_18, GPIO_NUM_19, GPIO_NUM_23, GPIO_NUM_5 } // SCK, MISO, MOSI, CS
-#endif
-
-#ifndef NUM_OF_EXPANDERS
-#define NUM_OF_EXPANDERS 2
+#ifndef NUM_MCP_EXPANDERS
+#define NUM_MCP_EXPANDERS 2
 #endif
 
 #define BUTTONS_PER_EXPANDER 16
-#define TOTAL_BUTTONS (NUM_OF_EXPANDERS * BUTTONS_PER_EXPANDER)
+#define TOTAL_BUTTONS (NUM_MCP_EXPANDERS * BUTTONS_PER_EXPANDER)
 
 class MCPButtonArray : public Control
 {
@@ -47,10 +43,10 @@ public:
     uint32_t getChangedPins() const { return changedPins; }
 
 private:
-    static constexpr uint8_t kMaxExpanders = NUM_OF_EXPANDERS; // adjust if you want >2 later
+    static constexpr uint8_t kMaxExpanders = NUM_MCP_EXPANDERS; // adjust if you want >2 later
 
     // SPI pin mapping: {SCK, MISO, MOSI, CS}
-    const uint8_t spiPins[4] = PIN_SPI;
+    const uint8_t spiPins[4] = { PIN_SPI_SCK, PIN_SPI_MISO, PIN_SPI_MOSI, PIN_SPI_CS };
       uint32_t lastReading = 0; 
       uint32_t changedPins = 0; 
 
@@ -62,9 +58,9 @@ private:
     MCP23S17 mcp1;
     MCP23S17 mcp2;
 
-    // Pointers to active expanders (size = NUM_OF_EXPANDERS)
-    MCP23S17* expanders[NUM_OF_EXPANDERS];
-    uint8_t expanderCount = NUM_OF_EXPANDERS;
+    // Pointers to active expanders (size = NUM_MCP_EXPANDERS)
+    MCP23S17* expanders[NUM_MCP_EXPANDERS];
+    uint8_t expanderCount = NUM_MCP_EXPANDERS;
 
     // Debounce + state tracking
     bool states[TOTAL_BUTTONS];               // debounced states (LOW = pressed)
