@@ -1,13 +1,13 @@
 #include "../config.h"
 #include "../controls/Control.h"
 #include "../repo/controlsRepo.h"
+#include "../repo/TSWControlRegistry.h"
 
 #if USE_ANALOG_SLIDER
 
 #include "TSWLever.h"
 
 static constexpr uint8_t ANALOG_PINS[] = PIN_ANALOG_SLIDER;
-static constexpr bool ANALOG_INV[] = ANALOG_SLIDER_INVERTED;
 
 TSWLever *sld1 = nullptr;
 TSWLever *sld2 = nullptr;
@@ -16,25 +16,26 @@ TSWLever *sld4 = nullptr;
 
 inline void setup_analogSlider(TSWSpider *spider)
 {
+    // Note: inverted setting is now loaded from JSON config files
 
     sld1 = new TSWLever(ANALOG_PINS[0], "AFB", spider);
-    sld1->setInverted(ANALOG_INV[0]);
     ControlRegistry::registerControl(sld1, "TSWLever");
+    TSWControlRegistry::registerControl(sld1);
     sld1->loadNotches("/config/BR406/afb.json");
 
     sld2 = new TSWLever(ANALOG_PINS[1], "Leistungsregler", spider);
-    sld2->setInverted(ANALOG_INV[1]);
     ControlRegistry::registerControl(sld2, "TSWLever");
+    TSWControlRegistry::registerControl(sld2);
     sld2->loadNotches("/config/BR406/leistung.json");
 
     sld3 = new TSWLever(ANALOG_PINS[2], "Rollo", spider);
-    sld3->setInverted(ANALOG_INV[2]);
     ControlRegistry::registerControl(sld3, "TSWLever");
+    TSWControlRegistry::registerControl(sld3);
     sld3->loadNotches("/config/BR406/rollo.json");
 
     sld4 = new TSWLever(ANALOG_PINS[3], "Bremse", spider);
-    sld4->setInverted(ANALOG_INV[3]);
     ControlRegistry::registerControl(sld4, "TSWLever");
+    TSWControlRegistry::registerControl(sld4);
     sld4->loadNotches("/config/BR406/bremse.json");
 }
 

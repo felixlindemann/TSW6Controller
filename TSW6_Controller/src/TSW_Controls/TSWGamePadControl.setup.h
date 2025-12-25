@@ -1,6 +1,7 @@
 #include "../config.h"
 #include "../controls/Control.h"
 #include "../repo/controlsRepo.h"
+#include "../repo/TSWControlRegistry.h"
 
 #if USE_GAMEPAD
 
@@ -16,10 +17,16 @@ inline void setup_GamePad(TSWSpider *spider)
                                 "/JoystickX", "/JoystickY", "/JoystickButton",
                                 spider);
 
-  pad1.setXInverted(true);
-  pad1.setYInverted(true);
+  // Note: inverted settings are now loaded from JSON config files
+  pad1.loadNotchesX("/config/BR406/gamepad_x.json");
+  pad1.loadNotchesY("/config/BR406/gamepad_y.json");
+  pad1.loadButtonNotches("/config/BR406/gamepad_btn.json");
+  
   pad1.begin();
   pad1Ptr = &pad1;
+  
+  // Register in TSWControlRegistry for REST API
+  TSWControlRegistry::registerControl(&pad1);
 }
 
 

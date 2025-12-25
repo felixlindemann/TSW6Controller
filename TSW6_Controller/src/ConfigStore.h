@@ -173,3 +173,33 @@ inline void saveConfig() {
   
   LOG_SYS_INFO("Config saved successfully\n");
 }
+
+/**
+ * Serialize current config to a JsonDocument for REST API.
+ * @param doc  JsonDocument to populate
+ */
+inline void configToJson(JsonDocument& doc) {
+  // WiFi section
+  JsonObject wifi = doc.createNestedObject("wifi");
+  wifi["ssid"] = cfg.wifi.ssid;
+  wifi["password"] = "********";  // Don't expose password in API
+  wifi["apMode"] = cfg.wifi.apModePreferred;
+  wifi["apCheckInterval"] = cfg.wifi.apCheckInterval;
+  wifi["heartbeatInterval"] = cfg.wifi.heartbeatInterval;
+  
+  // Server section
+  JsonObject server = doc.createNestedObject("server");
+  server["host"] = cfg.server.host;
+  server["port"] = cfg.server.port;
+  server["apiKey"] = "********";  // Don't expose API key
+  
+  // Device section
+  JsonObject device = doc.createNestedObject("device");
+  device["name"] = cfg.device.name;
+  device["mdnsName"] = cfg.device.mdnsName;
+  
+  // Build info
+  JsonObject build = doc.createNestedObject("build");
+  build["number"] = BUILD_NUMBER;
+  build["date"] = BUILD_DATE;
+}

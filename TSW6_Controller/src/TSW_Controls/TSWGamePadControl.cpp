@@ -42,8 +42,24 @@ void TSWGamePadControl::begin()
 }
 
 // --- Load custom notch mappings ---
-void TSWGamePadControl::loadNotchesX(const String &filePath) { notchX.loadFromFile(filePath); }
-void TSWGamePadControl::loadNotchesY(const String &filePath) { notchY.loadFromFile(filePath); }
+void TSWGamePadControl::loadNotchesX(const String &filePath) { 
+  if (notchX.loadFromFile(filePath)) {
+    // Apply inverted setting from config to hardware gamepad X axis
+    gamepad.setXInverted(notchX.isInverted());
+    LOG_SW_DEBUG("%s: X-axis inverted=%s (from config)\n", 
+                 getId().c_str(), notchX.isInverted() ? "true" : "false");
+  }
+}
+
+void TSWGamePadControl::loadNotchesY(const String &filePath) { 
+  if (notchY.loadFromFile(filePath)) {
+    // Apply inverted setting from config to hardware gamepad Y axis
+    gamepad.setYInverted(notchY.isInverted());
+    LOG_SW_DEBUG("%s: Y-axis inverted=%s (from config)\n", 
+                 getId().c_str(), notchY.isInverted() ? "true" : "false");
+  }
+}
+
 void TSWGamePadControl::loadButtonNotches(const String &filePath) { buttonNotches.loadFromFile(filePath); }
     
 

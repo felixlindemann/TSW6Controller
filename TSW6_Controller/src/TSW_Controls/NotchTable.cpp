@@ -28,6 +28,7 @@ bool NotchTable::loadFromFile(const String &path) {
   }
 
   controller = doc["controller"].as<String>();
+  inverted = doc["inverted"] | false;  // Default: not inverted
   positions.clear();
 
   for (JsonObject n : doc["positions"].as<JsonArray>()) {
@@ -84,6 +85,7 @@ void NotchTable::setupBinaryButton(const String &controllerName,
 void NotchTable::toJson(JsonObject &doc) const {
   doc["controller"] = controller;
   doc["label"] = label;
+  doc["inverted"] = inverted;
   
   JsonArray arr = doc.createNestedArray("positions");
   for (const auto &n : positions) {

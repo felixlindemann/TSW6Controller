@@ -49,6 +49,12 @@ public:
     TSWControl::toJson(doc);
     doc["pin"] = AnalogSlider::getPin();
     doc["currentPercent"] = AnalogSlider::getPercentValue();
+    doc["currentRaw"] = AnalogSlider::getCurrentRawValue();
     doc["inverted"] = AnalogSlider::getInverted();
   }
+  
+  // --- Live Value Access ---
+  int getCurrentPercent() const { return AnalogSlider::getPercentValue(); }
+  int getCurrentRaw() const { return AnalogSlider::getCurrentRawValue(); }
+  float getLastSentTSWValue() const { return lastSentValue; }
 };

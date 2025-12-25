@@ -8,6 +8,7 @@
 #include <LittleFS.h>
 #include "ConfigStore.h"
 #include "CaptivePortal.h"
+#include "repo/TSWControlRegistry.h"
 
 WebServer server(80);
 DNSServer dnsServer;
@@ -298,6 +299,217 @@ void serverGetLogo()
 }
 
 // -------------------------------------------------------------
+// REST API for Angular App
+// -------------------------------------------------------------
+
+/**
+ * Enable CORS for Angular development server.
+ */
+void sendCorsHeaders() {
+    server.sendHeader("Access-Control-Allow-Origin", "*");
+    server.sendHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+    server.sendHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+}
+
+/**
+ * Handle CORS preflight requests.
+ */
+void handleCorsOptions() {
+    sendCorsHeaders();
+    server.send(204);
+}
+
+/**
+ * GET /api/controls - Get all TSW controls as JSON array.
+ */
+void handleApiGetControls() {
+    sendCorsHeaders();
+    String json = TSWControlRegistry::toJsonString();
+    server.send(200, "application/json", json);
+    LOG_HTTP_DEBUG("API: GET /api/controls -> %d controls\n", TSWControlRegistry::count());
+}
+
+/**
+ * GET /api/controls/summary - Get minimal control info (for list views).
+ */
+void handleApiGetControlsSummary() {
+    sendCorsHeaders();
+    DynamicJsonDocument doc(4096);
+    TSWControlRegistry::toSummaryJson(doc);
+    String json;
+    serializeJson(doc, json);
+    server.send(200, "application/json", json);
+}
+
+/**
+ * GET /api/controls/values - Get live values for all controls (lightweight).
+ * Returns only controllerName, type, and current values.
+ */
+void handleApiGetControlValues() {
+    sendCorsHeaders();
+    DynamicJsonDocument doc(4096);
+    JsonArray arr = doc.to<JsonArray>();
+    
+    for (auto* c : TSWControlRegistry::getAll()) {
+        JsonObject obj = arr.createNestedObject();
+        obj["controllerName"] = c->getControllerName();
+        obj["type"] = c->getControlType();
+        
+        // Add current values based on control type
+        // Full toJson() would be too heavy for live updates
+        c->toJson(obj);  // Includes lastSentValue, currentPercent, etc.
+    }
+    
+    String json;
+    serializeJson(doc, json);
+    server.send(200, "application/json", json);
+}
+
+/**
+ * GET /api/controls/{name} - Get a specific control by controllerName.
+ */
+void handleApiGetControl() {
+    sendCorsHeaders();
+    
+    // Extract controller name from URI: /api/controls/{name}
+    String uri = server.uri();
+    int lastSlash = uri.lastIndexOf('/');
+    if (lastSlash < 0) {
+        server.send(400, "application/json", "{\"error\":\"Invalid URI\"}");
+        return;
+    }
+    String controllerName = uri.substring(lastSlash + 1);
+    controllerName.replace("%20", " ");  // URL decode spaces
+    
+    DynamicJsonDocument doc(2048);
+    if (TSWControlRegistry::toJson(controllerName, doc)) {
+        String json;
+        serializeJson(doc, json);
+        server.send(200, "application/json", json);
+        LOG_HTTP_DEBUG("API: GET /api/controls/%s -> OK\n", controllerName.c_str());
+    } else {
+        server.send(404, "application/json", "{\"error\":\"Control not found\"}");
+        LOG_HTTP_WARN("API: GET /api/controls/%s -> Not found\n", controllerName.c_str());
+    }
+}
+
+/**
+ * PUT /api/controls/{name} - Update a control's configuration.
+ * Body: JSON object with fields to update.
+ */
+void handleApiUpdateControl() {
+    sendCorsHeaders();
+    
+    // Extract controller name from URI
+    String uri = server.uri();
+    int lastSlash = uri.lastIndexOf('/');
+    if (lastSlash < 0) {
+        server.send(400, "application/json", "{\"error\":\"Invalid URI\"}");
+        return;
+    }
+    String controllerName = uri.substring(lastSlash + 1);
+    controllerName.replace("%20", " ");
+    
+    // Parse JSON body
+    if (!server.hasArg("plain")) {
+        server.send(400, "application/json", "{\"error\":\"No body provided\"}");
+        return;
+    }
+    
+    DynamicJsonDocument doc(2048);
+    DeserializationError err = deserializeJson(doc, server.arg("plain"));
+    if (err) {
+        String error = "{\"error\":\"JSON parse error: " + String(err.c_str()) + "\"}";
+        server.send(400, "application/json", error);
+        return;
+    }
+    
+    JsonObject json = doc.as<JsonObject>();
+    if (TSWControlRegistry::updateFromJson(controllerName, json)) {
+        server.send(200, "application/json", "{\"success\":true}");
+        LOG_HTTP_INFO("API: PUT /api/controls/%s -> Updated\n", controllerName.c_str());
+    } else {
+        server.send(404, "application/json", "{\"error\":\"Control not found\"}");
+    }
+}
+
+/**
+ * GET /api/config - Get current device configuration.
+ */
+void handleApiGetConfig() {
+    sendCorsHeaders();
+    DynamicJsonDocument doc(2048);
+    configToJson(doc);
+    String json;
+    serializeJson(doc, json);
+    server.send(200, "application/json", json);
+}
+
+/**
+ * PUT /api/config - Update device configuration.
+ */
+void handleApiUpdateConfig() {
+    sendCorsHeaders();
+    
+    if (!server.hasArg("plain")) {
+        server.send(400, "application/json", "{\"error\":\"No body provided\"}");
+        return;
+    }
+    
+    // TODO: Parse JSON and update cfg, then saveConfig()
+    server.send(200, "application/json", "{\"success\":true,\"message\":\"Not fully implemented yet\"}");
+}
+
+/**
+ * Setup REST API routes.
+ */
+void setupRestApi() {
+    // CORS preflight
+    server.on("/api/controls", HTTP_OPTIONS, handleCorsOptions);
+    server.on("/api/config", HTTP_OPTIONS, handleCorsOptions);
+    
+    // Controls API
+    server.on("/api/controls", HTTP_GET, handleApiGetControls);
+    server.on("/api/controls/summary", HTTP_GET, handleApiGetControlsSummary);
+    server.on("/api/controls/values", HTTP_GET, handleApiGetControlValues);
+    
+    // Config API
+    server.on("/api/config", HTTP_GET, handleApiGetConfig);
+    server.on("/api/config", HTTP_PUT, handleApiUpdateConfig);
+    
+    // Dynamic routes for individual controls need special handling
+    // Using onNotFound for pattern matching
+    LOG_SYS_INFO("REST API endpoints registered\n");
+}
+
+/**
+ * Handle dynamic API routes (for /api/controls/{name}).
+ */
+void handleApiDynamicRoutes() {
+    String uri = server.uri();
+    
+    // Check if this is an API control request
+    if (uri.startsWith("/api/controls/") && uri.length() > 15) {
+        String controllerName = uri.substring(14);  // After "/api/controls/"
+        if (controllerName != "summary") {  // Not the summary endpoint
+            if (server.method() == HTTP_GET) {
+                handleApiGetControl();
+                return;
+            } else if (server.method() == HTTP_PUT) {
+                handleApiUpdateControl();
+                return;
+            } else if (server.method() == HTTP_OPTIONS) {
+                handleCorsOptions();
+                return;
+            }
+        }
+    }
+    
+    // Not an API route - return 404
+    server.send(404, "text/plain", "Not found");
+}
+
+// -------------------------------------------------------------
 // AP-Mode
 // -------------------------------------------------------------
 void startAPMode()
@@ -323,6 +535,11 @@ void startAPMode()
     server.on("/save", HTTP_POST, handleSave);
     server.on("/reboot", handleReboot);
     serverGetLogo();
+    
+    // REST API for Angular
+    setupRestApi();
+    server.onNotFound(handleApiDynamicRoutes);
+    
     server.begin();
     startMDNS();
 
@@ -358,6 +575,11 @@ void startNormalMode()
         server.on("/save", HTTP_POST, handleSave);
         server.on("/reboot", handleReboot);
         serverGetLogo();
+        
+        // REST API for Angular
+        setupRestApi();
+        server.onNotFound(handleApiDynamicRoutes);
+        
         server.begin();
         startMDNS();
     }

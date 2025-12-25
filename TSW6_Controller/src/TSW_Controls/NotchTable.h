@@ -44,6 +44,7 @@ class NotchTable
 private:
     String controller;
     String label;
+    bool inverted = false;  // Whether the input should be inverted
     std::vector<Notch> positions;
 
 public:
@@ -60,6 +61,10 @@ public:
     const String &getLabel() const { return label; }
     void getPositions(std::vector<Notch> &out) const { out = positions; }
     void clear() { positions.clear(); }
+    
+    // Inverted getter/setter
+    bool isInverted() const { return inverted; }
+    void setInverted(bool inv) { inverted = inv; }
 
     /**
      * Helper to create a simple binary button mapping (Released/Pressed).

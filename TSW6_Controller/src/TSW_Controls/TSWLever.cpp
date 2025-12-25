@@ -29,6 +29,11 @@ void TSWLever::loadNotches(const String &filePath)
   if (notches.loadFromFile(filePath)) {
     LOG_SW_INFO("%s: Loaded %d notches for controller: %s\n", 
                 getId().c_str(), notches.getPositionCount(), notches.getControllerName().c_str());
+    
+    // Apply inverted setting from config to hardware slider
+    AnalogSlider::setInverted(notches.isInverted());
+    LOG_SW_DEBUG("%s: inverted=%s (from config)\n", 
+                 getId().c_str(), notches.isInverted() ? "true" : "false");
   } else {
     LOG_SW_ERROR("%s: Failed to load notches from: %s\n", getId().c_str(), filePath.c_str());
   }

@@ -15,6 +15,7 @@
 #include "../controls/Control.h"
 #include "../controls/MCPButtonArray.h"
 #include "../repo/controlsRepo.h"
+#include "../repo/TSWControlRegistry.h"
 
 #if USE_MCP_BUTTON_ARRAY
 
@@ -68,6 +69,9 @@ inline TSWMCPButton* createMCPButton(const String& id,
     TSWMCPButton* btn = new TSWMCPButton(id, spider, sharedButtonArray, index);
     btn->setMapping(released, pressed);
     mcpButtons.push_back(btn);
+    
+    // Register in TSWControlRegistry for REST API
+    TSWControlRegistry::registerControl(btn);
     
     LOG_SW_INFO("Created TSWMCPButton[%d]: %s\n", index, id.c_str());
     return btn;
