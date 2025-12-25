@@ -40,12 +40,14 @@ void AnalogSlider::begin()
   rawValue = analogRead(pin) - zero;
   value = getPercent(rawValue);
   lastChangeReason = "init";
+  
+  LOG_HW_DEBUG("AnalogSlider %s initialized on GPIO %d (raw: %d, pct: %d)\n", 
+               getId().c_str(), pin, rawValue, value);
 }
 
 // --- Update ---
 bool AnalogSlider::update()
 {
-  TRACE_PRINT("--- AnalogSlider Update: %s ---\n", getId().c_str());
   lastChangeReason = "none";
   unsigned long now = millis();
   if (now - lastRead < interval)
@@ -61,6 +63,7 @@ bool AnalogSlider::update()
 
   if (abs(newRaw - rawValue) < rawThreshold)
     return false;
+    
   lastRawValue = rawValue;
   rawValue = newRaw;
 
@@ -71,6 +74,7 @@ bool AnalogSlider::update()
   {
     value = newPercent;
     lastChangeReason = "moved";
+    LOG_HW_TRACE("AnalogSlider %s: raw=%d pct=%d\n", getId().c_str(), rawValue, value);
     return true;
   }
   return false;

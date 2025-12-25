@@ -32,6 +32,8 @@ void Button::begin()
   lastReading = digitalRead(pin);
   lastStableState = lastReading;
   lastDebounceTime = millis();
+  LOG_HW_DEBUG("Button %s initialized on GPIO %d (state: %s)\n", 
+               getId().c_str(), pin, lastStableState == LOW ? "pressed" : "released");
 }
 
 // --- Update ---
@@ -54,13 +56,12 @@ bool Button::update()
       lastStableState = lastReading;
       lastEvent = (lastStableState == LOW) ? +1 : -1;
       lastChangeReason = reading ? "pressed" : "released";
-#if TRACE
+      
       if (isPressed()) {
-        TRACE_PRINT("[%lu ms] Button %s pressed\n", millis(), getId().c_str());
+        LOG_HW_INFO("Button %s pressed\n", getId().c_str());
       } else {
-        TRACE_PRINT("[%lu ms] Button %s released\n", millis(), getId().c_str());
+        LOG_HW_DEBUG("Button %s released\n", getId().c_str());
       }
-#endif
 
       return true; // state changed
     }

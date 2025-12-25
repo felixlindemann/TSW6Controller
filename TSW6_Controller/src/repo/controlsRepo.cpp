@@ -13,7 +13,7 @@ bool ControlRegistry::registerControl(Control *c, const char *type)
         {
             e.instance = c;
             e.type = type;
-            Serial.printf("[INFO] Updated Control: %s [%s]\n",
+            LOG_SW_DEBUG("Updated Control: %s [%s]\n",
                           c->getId().c_str(), type);
             return true;
         }
@@ -38,7 +38,7 @@ const std::vector<ControlRegistry::Entry> &ControlRegistry::getAll()
 
 void ControlRegistry::listAll()
 {
-    Serial.println("--- Registered Controls ---");
+    LOG_SW_INFO("--- Registered Controls ---\n");
     for (auto &e : controls)
-        Serial.printf("%s [%s]\n", e.id.c_str(), e.type.c_str());
+        LOG_SW_INFO("%s [%s]\n", e.id.c_str(), e.type.c_str());
 }

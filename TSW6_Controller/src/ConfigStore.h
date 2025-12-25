@@ -18,18 +18,25 @@ extern Config cfg;
 
 inline bool loadConfig()
 {
-  if (!LittleFS.begin())
+  LOG_SYS_DEBUG("Loading config from /config.json...\n");
+  
+  if (!LittleFS.begin()) {
+    LOG_SYS_ERROR("LittleFS mount failed\n");
     return false;
+  }
+  
   File f = LittleFS.open("/config.json", "r");
-  if (!f)
+  if (!f) {
+    LOG_SYS_WARN("Config file not found - using defaults\n");
     return false;
+  }
 
   DynamicJsonDocument doc(1024);
   DeserializationError err = deserializeJson(doc, f);
   f.close();
 
   if (err) {
-    TRACE_PRINT("[Config] JSON parse error: %s\n", err.c_str());
+    LOG_SYS_ERROR("Config JSON parse error: %s\n", err.c_str());
     return false;
   }
 
@@ -51,16 +58,22 @@ inline bool loadConfig()
   cfg.wifiApCheckIntervall = wifi["wifiApCheckIntervall"] | 1000UL;
   cfg.wifiHeartbeatIntervall = wifi["wifiHeartbeatIntervall"] | 10000UL;
 
+  LOG_SYS_INFO("Config loaded: SSID=%s, AP-Mode=%s\n", 
+               cfg.ssid, cfg.apModePreferred ? "true" : "false");
   return true;
 }
 
 inline void saveConfig()
 {
+  LOG_SYS_INFO("Saving config to /config.json...\n");
+  
   if (!LittleFS.begin())
     LittleFS.begin();
   File f = LittleFS.open("/config.json", "w");
-  if (!f)
+  if (!f) {
+    LOG_SYS_ERROR("Failed to open config file for writing\n");
     return;
+  }
 
   DynamicJsonDocument doc(1024);
   JsonObject wifi = doc.createNestedObject("wifi");
@@ -74,4 +87,6 @@ inline void saveConfig()
 
   serializeJsonPretty(doc, f);
   f.close();
+  
+  LOG_SYS_INFO("Config saved successfully\n");
 }

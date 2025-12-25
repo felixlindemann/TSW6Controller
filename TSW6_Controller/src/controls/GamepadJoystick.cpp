@@ -86,10 +86,8 @@ bool GamepadJoystick::update()
   buttonPressed = (digitalRead(pin) == LOW);
   if (buttonPressed != lastButtonPressed)
   {
-    changed = true; 
-      Serial.printf(" [GAMEPAD BUTTON %s]\n",
-                  buttonPressed ? "pressed" : "released");
-  
+    changed = true;
+    LOG_HW_INFO("Gamepad Button %s\n", buttonPressed ? "pressed" : "released");
     lastChangeReason = "button";
   }
 
@@ -121,7 +119,7 @@ void GamepadJoystick::calibrateCenter()
   xZero = sumX / samples;
   yZero = sumY / samples;
 
-  Serial.printf("[CALIB] Joystick centerX=%d, centerY=%d\n", xZero, yZero);
+  LOG_HW_INFO("Joystick calibrated: centerX=%d centerY=%d\n", xZero, yZero);
 }
 
 // --- Centered conversion −100 … +100 % (symmetrical around center) ---

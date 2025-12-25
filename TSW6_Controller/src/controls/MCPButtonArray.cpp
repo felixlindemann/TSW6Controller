@@ -37,10 +37,10 @@ MCPButtonArray::MCPButtonArray(const String &idPrefix, unsigned int debounceMs)
 
 void MCPButtonArray::haltWithMcpError(uint8_t chipIndex, const char *msg)
 {
-    Serial.printf("[ERROR] MCP23S17 #%u: %s\n", chipIndex, msg);
-    Serial.printf("        SPI pins: SCK=%u MISO=%u MOSI=%u CS=%u\n",
+    LOG_HW_ERROR("MCP23S17 #%u: %s\n", chipIndex, msg);
+    LOG_HW_ERROR("        SPI pins: SCK=%u MISO=%u MOSI=%u CS=%u\n",
                   spiPins[0], spiPins[1], spiPins[2], spiPins[3]);
-    Serial.println("        PLEASE CHECK THE HARDWARE CONNECTIONS / ADDRESS PINS.");
+    LOG_HW_ERROR("        PLEASE CHECK THE HARDWARE CONNECTIONS / ADDRESS PINS.\n");
     while (true)
     {
         delay(50);
@@ -114,8 +114,8 @@ void MCPButtonArray::begin()
         states[i] = HIGH;
     }
 
-    Serial.printf("MCP1 addr=%u read16=0x%04X\n", mcp1.getAddress(), mcp1.read16());
-    Serial.printf("MCP2 addr=%u read16=0x%04X\n", mcp2.getAddress(), mcp2.read16());
+    LOG_HW_DEBUG("MCP1 addr=%u read16=0x%04X\n", mcp1.getAddress(), mcp1.read16());
+    LOG_HW_DEBUG("MCP2 addr=%u read16=0x%04X\n", mcp2.getAddress(), mcp2.read16());
 }
 
 bool MCPButtonArray::update()

@@ -10,9 +10,11 @@
 #include "NotchTable.h"
 
 bool NotchTable::loadFromFile(const String &path) {
+  LOG_SW_DEBUG("Loading notch table: %s\n", path.c_str());
+  
   File file = LittleFS.open(path);
   if (!file) {
-    TRACE_PRINT("[NotchTable] Failed to open file: %s\n", path.c_str());
+    LOG_SW_ERROR("Failed to open notch file: %s\n", path.c_str());
     return false;
   }
 
@@ -21,7 +23,7 @@ bool NotchTable::loadFromFile(const String &path) {
   file.close();
 
   if (err) {
-    TRACE_PRINT("[NotchTable] JSON parse error: %s\n", err.c_str());
+    LOG_SW_ERROR("JSON parse error in %s: %s\n", path.c_str(), err.c_str());
     return false;
   }
 
@@ -37,6 +39,8 @@ bool NotchTable::loadFromFile(const String &path) {
     positions.push_back(notch);
   }
 
+  LOG_SW_INFO("Loaded %d notches for controller '%s' from %s\n", 
+              positions.size(), controller.c_str(), path.c_str());
   return true;
 }
 bool NotchTable::loadFromArray(const std::vector<Notch>& list) {

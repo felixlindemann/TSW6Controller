@@ -77,10 +77,9 @@ void TSWGamePadControl::updateAndSend()
   float tswY = notchY.hasPositions() ? notchY.mapToTSW(yVal) : yVal / 100.0f;
 
   lastSentTime = now;
-
-#if TRACE_API_CALL
-  TRACE_PRINT("[%lu ms] GamePad => x: %d  y: %d BTN: %d\n", now, gamepad.getXCentered(), gamepad.getYCentered(), gamepad.isPressed() ? 1 : 0);
-#endif
+  
+  LOG_HW_TRACE("GamePad => x: %d y: %d BTN: %d\n", 
+               gamepad.getXCentered(), gamepad.getYCentered(), gamepad.isPressed() ? 1 : 0);
 
   // Button
   float btnVal = buttonNotches.mapToTSW(gamepad.isPressed() ? 1.0f : 0.0f);

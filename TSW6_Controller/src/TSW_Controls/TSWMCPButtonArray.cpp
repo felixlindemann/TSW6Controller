@@ -50,9 +50,8 @@ void TSWMCPButtonArray::setDefaultControllerPrefix(const String &prefix,
 
 void TSWMCPButtonArray::updateBtn(uint8_t index)
 {
-
-  TRACE_PRINT("TSWMCPButtonArray::updateBtn(%u)\n", index);
-    if (index >= TOTAL_BUTTONS) return;
+  LOG_HW_TRACE("TSWMCPButtonArray::updateBtn(%u)\n", index);
+  if (index >= TOTAL_BUTTONS) return;
 
     const String& controller = mappings[index].controller;
     if (controller.length() == 0) return;
@@ -77,21 +76,21 @@ void TSWMCPButtonArray::updateAndSend()
 
     if (!buttonArray.update()) return;
 
-    TRACE_PRINT("TSWMCPButtonArray::updateAndSend(): MCPButtonArray detected changes\n");
+    LOG_HW_DEBUG("MCPButtonArray detected changes\n");
 
     const unsigned long now = millis();
-    TRACE_PRINT("  now=%lu lastSent=%lu interval=%lu\n", now, lastSentTimeMs, sendIntervalMs);
+    LOG_HW_TRACE("  now=%lu lastSent=%lu interval=%lu\n", now, lastSentTimeMs, sendIntervalMs);
     if (sendIntervalMs > 0 && (now - lastSentTimeMs) < sendIntervalMs) return;
 
     uint32_t pending = buttonArray.getChangedPins();
-    TRACE_PRINT("  pending changes bitmask=0x%08X\n", pending);
+    LOG_HW_TRACE("  pending changes bitmask=0x%08X\n", pending);
 
     while (pending) {
         const uint8_t bit = __builtin_ctz(pending);
-        TRACE_PRINT("  Sending update for button index %u\n", bit);
+        LOG_HW_TRACE("  Sending update for button index %u\n", bit);
         updateBtn(bit);
         pending &= ~(1UL << bit);
-        TRACE_PRINT("  remaining pending bitmask=0x%08X\n", pending);
+        LOG_HW_TRACE("  remaining pending bitmask=0x%08X\n", pending);
     }
 
     lastSentTimeMs = now;

@@ -3,6 +3,21 @@
 
 #define USEDISPLAY 0
 
+// === Logging Configuration ===
+// Log Levels: 0=OFF, 1=ERROR, 2=WARN, 3=INFO, 4=DEBUG, 5=TRACE
+#define LOG_LEVEL_HARDWARE 3   // INFO
+#define LOG_LEVEL_SOFTWARE 3   // INFO
+#define LOG_LEVEL_HTTP 3       // INFO
+#define LOG_LEVEL_SYSTEM 4     // DEBUG
+
+// Log Level Definitions
+#define LOG_OFF 0
+#define LOG_ERROR 1
+#define LOG_WARN 2
+#define LOG_INFO 3
+#define LOG_DEBUG 4
+#define LOG_TRACE 5
+
 #define TRACE 1
 #define TRACE_HARDWARE 1
 #define TRACE_API_CALL 1
@@ -49,6 +64,31 @@
 #else
 #define TRACE_PRINT(...)
 #endif
+
+// === Advanced Logging Macros ===
+#define LOG_HW_ERROR(...)   if(LOG_LEVEL_HARDWARE >= LOG_ERROR) { Serial.printf("[HW ERROR] "); Serial.printf(__VA_ARGS__); }
+#define LOG_HW_WARN(...)    if(LOG_LEVEL_HARDWARE >= LOG_WARN)  { Serial.printf("[HW WARN] ");  Serial.printf(__VA_ARGS__); }
+#define LOG_HW_INFO(...)    if(LOG_LEVEL_HARDWARE >= LOG_INFO)  { Serial.printf("[HW INFO] ");  Serial.printf(__VA_ARGS__); }
+#define LOG_HW_DEBUG(...)   if(LOG_LEVEL_HARDWARE >= LOG_DEBUG) { Serial.printf("[HW DEBUG] "); Serial.printf(__VA_ARGS__); }
+#define LOG_HW_TRACE(...)   if(LOG_LEVEL_HARDWARE >= LOG_TRACE) { Serial.printf("[HW TRACE] "); Serial.printf(__VA_ARGS__); }
+
+#define LOG_SW_ERROR(...)   if(LOG_LEVEL_SOFTWARE >= LOG_ERROR) { Serial.printf("[SW ERROR] "); Serial.printf(__VA_ARGS__); }
+#define LOG_SW_WARN(...)    if(LOG_LEVEL_SOFTWARE >= LOG_WARN)  { Serial.printf("[SW WARN] ");  Serial.printf(__VA_ARGS__); }
+#define LOG_SW_INFO(...)    if(LOG_LEVEL_SOFTWARE >= LOG_INFO)  { Serial.printf("[SW INFO] ");  Serial.printf(__VA_ARGS__); }
+#define LOG_SW_DEBUG(...)   if(LOG_LEVEL_SOFTWARE >= LOG_DEBUG) { Serial.printf("[SW DEBUG] "); Serial.printf(__VA_ARGS__); }
+#define LOG_SW_TRACE(...)   if(LOG_LEVEL_SOFTWARE >= LOG_TRACE) { Serial.printf("[SW TRACE] "); Serial.printf(__VA_ARGS__); }
+
+#define LOG_HTTP_ERROR(...) if(LOG_LEVEL_HTTP >= LOG_ERROR)     { Serial.printf("[HTTP ERROR] "); Serial.printf(__VA_ARGS__); }
+#define LOG_HTTP_WARN(...)  if(LOG_LEVEL_HTTP >= LOG_WARN)      { Serial.printf("[HTTP WARN] ");  Serial.printf(__VA_ARGS__); }
+#define LOG_HTTP_INFO(...)  if(LOG_LEVEL_HTTP >= LOG_INFO)      { Serial.printf("[HTTP INFO] ");  Serial.printf(__VA_ARGS__); }
+#define LOG_HTTP_DEBUG(...) if(LOG_LEVEL_HTTP >= LOG_DEBUG)     { Serial.printf("[HTTP DEBUG] "); Serial.printf(__VA_ARGS__); }
+#define LOG_HTTP_TRACE(...) if(LOG_LEVEL_HTTP >= LOG_TRACE)     { Serial.printf("[HTTP TRACE] "); Serial.printf(__VA_ARGS__); }
+
+#define LOG_SYS_ERROR(...)  if(LOG_LEVEL_SYSTEM >= LOG_ERROR)   { Serial.printf("[SYS ERROR] "); Serial.printf(__VA_ARGS__); }
+#define LOG_SYS_WARN(...)   if(LOG_LEVEL_SYSTEM >= LOG_WARN)    { Serial.printf("[SYS WARN] ");  Serial.printf(__VA_ARGS__); }
+#define LOG_SYS_INFO(...)   if(LOG_LEVEL_SYSTEM >= LOG_INFO)    { Serial.printf("[SYS INFO] ");  Serial.printf(__VA_ARGS__); }
+#define LOG_SYS_DEBUG(...)  if(LOG_LEVEL_SYSTEM >= LOG_DEBUG)   { Serial.printf("[SYS DEBUG] "); Serial.printf(__VA_ARGS__); }
+#define LOG_SYS_TRACE(...)  if(LOG_LEVEL_SYSTEM >= LOG_TRACE)   { Serial.printf("[SYS TRACE] "); Serial.printf(__VA_ARGS__); }
 
 #if (NUM_OF_EXPANDERS > 0)
 #define USE_MCPBUTTONARRAY 1

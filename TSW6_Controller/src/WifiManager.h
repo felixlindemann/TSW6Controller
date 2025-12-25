@@ -23,11 +23,11 @@ void startMDNS()
 {
     if (MDNS.begin(MDNS_NAME))
     {
-        Serial.printf("mDNS aktiv: http://%s.local\n", MDNS_NAME);
+        LOG_SYS_INFO("mDNS active: http://%s.local\n", MDNS_NAME);
     }
     else
     {
-        Serial.println("Fehler: mDNS konnte nicht gestartet werden");
+        LOG_SYS_ERROR("mDNS failed to start\n");
     }
 }
 
@@ -38,21 +38,21 @@ bool checkLogoFile()
 {
     if (!LittleFS.begin())
     {
-        Serial.println("[LOGO] LittleFS mount fehlgeschlagen!");
+        LOG_SYS_ERROR("LittleFS mount failed!\n");
         return false;
     }
     if (!LittleFS.exists("/logo_Ole_TSW.svg"))
     {
-        Serial.println("[LOGO] Datei '/logo_Ole_TSW.svg' nicht gefunden!");
+        LOG_SYS_WARN("Logo file '/logo_Ole_TSW.svg' not found!\n");
         return false;
     }
     File f = LittleFS.open("/logo_Ole_TSW.svg", "r");
     if (!f || f.size() == 0)
     {
-        Serial.println("[LOGO] Datei existiert, ist aber leer oder unlesbar!");
+        LOG_SYS_ERROR("Logo file empty or unreadable!\n");
         return false;
     }
-    Serial.printf("[LOGO] Logo gefunden (%u Bytes)\n", f.size());
+    LOG_SYS_DEBUG("Logo found (%u bytes)\n", f.size());
     f.close();
     return true;
 }
@@ -148,7 +148,9 @@ void buildSetupForm(String &out)
     out += "<img src='/logo_Ole_TSW.svg' alt='TSW Logo'>";
 
     out += "</div>";
-    out += "<h1>" + String(DEVICE_NAME) + " Setup</h1>";
+    out += "<h1>";
+    out += DEVICE_NAME;
+    out += " Setup</h1>";
 
     // Formular
     // WLAN-Scan
@@ -208,7 +210,7 @@ void handleRoot()
     String body;
     body.reserve(7000);
     buildSetupForm(body);
-    server.send(200, "text/html", buildPage("Setup - " + String(DEVICE_NAME), body));
+    server.send(200, "text/html", buildPage(String("Setup - ") + DEVICE_NAME, body));
 }
 
 void handleConfigPage()
@@ -216,7 +218,7 @@ void handleConfigPage()
     String body;
     body.reserve(7000);
     buildSetupForm(body); // identisch zur Setup-Seite
-    server.send(200, "text/html", buildPage("Config - " + String(DEVICE_NAME), body));
+    server.send(200, "text/html", buildPage(String("Config - ") + DEVICE_NAME, body));
 }
 
 void handleStatusPage()
@@ -242,7 +244,7 @@ void handleStatusPage()
     body += "<label>IP</label><div>" + String(apMode ? WiFi.softAPIP().toString() : WiFi.localIP().toString()) + "</div>";
     body += "<label>Signal (RSSI)</label><div>" + String(WiFi.RSSI()) + " dBm</div>";
     body += "<div class='btnbar'><a class='btn btn-ghost' href='/reboot'>Neustart</a></div>";
-    server.send(200, "text/html", buildPage("Status - " + String(DEVICE_NAME), body));
+    server.send(200, "text/html", buildPage(String("Status - ") + DEVICE_NAME, body));
 }
 
 // -------------------------------------------------------------
@@ -304,7 +306,7 @@ void startAPMode()
     digitalWrite(STATUS_LED, LOW);
     WiFi.mode(WIFI_AP);
 
-    Serial.println("\n=== STARTE ACCESS POINT ===");
+    LOG_SYS_INFO("Starting Access Point mode...\n");
     WiFi.softAP(DEVICE_SSID, DEVICE_PASS);
     delay(300);
     // IPAddress apIP(192, 168, 4, 1);
@@ -325,7 +327,7 @@ void startAPMode()
     server.begin();
     startMDNS();
 
-    Serial.println("Webserver läuft auf http://" MyIP " sowie http://TSWController.local");
+    LOG_SYS_INFO("Webserver running on http://" MyIP " and http://TSWController.local\n");
 }
 
 // -------------------------------------------------------------
@@ -338,7 +340,7 @@ void startNormalMode()
     WiFi.begin(cfg.ssid, cfg.pass);
     digitalWrite(STATUS_LED, HIGH);
 
-    Serial.printf("Verbinde mit %s ...\n", cfg.ssid);
+    LOG_SYS_INFO("Connecting to %s...\n", cfg.ssid);
     unsigned long start = millis();
     while (WiFi.status() != WL_CONNECTED && millis() - start < 12000)
     {
@@ -348,9 +350,8 @@ void startNormalMode()
 
     if (WiFi.status() == WL_CONNECTED)
     {
-        Serial.println("\nVerbunden!");
-        Serial.print("IP: ");
-        Serial.println(WiFi.localIP());
+        LOG_SYS_INFO("WiFi connected!\n");
+        LOG_SYS_INFO("IP: %s\n", WiFi.localIP().toString().c_str());
         server.on("/", handleRoot);
         server.on("/config", handleConfigPage);
         server.on("/status", handleStatusPage);
@@ -362,7 +363,7 @@ void startNormalMode()
     }
     else
     {
-        Serial.println("\nFehler -> Fallback in AP-Modus");
+        LOG_SYS_WARN("WiFi connection failed -> Fallback to AP mode\n");
         startAPMode();
     }
 }
@@ -373,12 +374,12 @@ void startNormalMode()
 
 bool gpioAPHandler()
 {
-
+    LOG_HW_TRACE("     Prüfe Setup-Button für AP-Modus\n");
     lastWIFI_AP_CHECK = millis();
     bool setupPressed = (digitalRead(SETUP_BUTTON) == LOW);
     if (setupPressed)
     {
-        TRACE_PRINT("Setup Button pressed - Starting AP Mode\n");
+        LOG_HW_TRACE("         sSetup Button pressed - Starting AP Mode\n");
         startAPMode();
     }
     return setupPressed;
@@ -386,6 +387,7 @@ bool gpioAPHandler()
 
 void beginWiFiManager()
 {
+    LOG_SYS_INFO("=== WiFi Manager Starting ===\n");    
     pinMode(SETUP_BUTTON, INPUT_PULLUP);
     pinMode(STATUS_LED, OUTPUT);
     checkLogoFile();
@@ -408,6 +410,8 @@ void beginWiFiManager()
         // Keine Config vorhanden -> immer AP
         startAPMode();
     }
+    
+    LOG_SYS_INFO("=== WiFi Manager Started ===\n");    
 }
 
 void loopWiFiManager()
@@ -420,13 +424,11 @@ void loopWiFiManager()
     dnsServer.processNextRequest();
     server.handleClient();
 
-#if TRACE
     if (millis() - lastWIFI_HEARTBEAT > cfg.wifiHeartbeatIntervall)
     {
         lastWIFI_HEARTBEAT = millis();
-        TRACE_PRINT("=== HEARTBEAT ===  Modus: %s | IP: %s\n",
-                    apMode ? "AP" : "Client",
-                    (apMode ? WiFi.softAPIP() : WiFi.localIP()).toString().c_str());
+        String ip = apMode ? WiFi.softAPIP().toString() : WiFi.localIP().toString();
+        LOG_SYS_DEBUG("WiFi Heartbeat: Mode=%s IP=%s\n",
+                      apMode ? "AP" : "Client", ip.c_str());
     }
-#endif
 }

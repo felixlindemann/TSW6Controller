@@ -40,7 +40,6 @@ inline void setup_analogSlider(TSWSpider *spider)
 
 inline void update_analogSlider()
 {
-    TRACE_PRINT("--- ANALOG SLIDER UPDATE ---\n");
     sld1->updateAndSend();
     sld2->updateAndSend();
     sld3->updateAndSend();

@@ -24,21 +24,25 @@ void TSWSpider::begin(const String &ip, uint16_t p) {
   host = ip;
   port = p;
   
+  LOG_HTTP_INFO("Spider API initializing...\n");
+  
   // Load dtgCommKey from config.json
   if (loadConfig()) {
     dtgCommKey = String(cfg.apiKey);
-    TRACE_PRINT("[Spider] Loaded dtgCommKey from config: %s\n", dtgCommKey.c_str());
+    LOG_HTTP_DEBUG("Loaded API key from config (length: %d)\n", dtgCommKey.length());
   } else {
     dtgCommKey = "r2SpKhypgdoIfJQkgbCdKnXV2mKbrAwAqug3A3K/UA8="; // fallback
-    TRACE_PRINT("[Spider] Using default dtgCommKey\n");
+    LOG_HTTP_WARN("Config not found - using default API key\n");
   }
   
-  TRACE_PRINT("[Spider] Initialized for host %s:%u\n", host.c_str(), port);
+  LOG_HTTP_INFO("Spider connected to %s:%u\n", host.c_str(), port);
 }
 
 bool TSWSpider::setControllerValue(const String &controller, float value) {
   String url = "http://" + host + ":" + String(port) 
                 + controller + "?inputValue=" + String(value, 16);
+
+  LOG_HTTP_TRACE("SET %s = %.4f\n", controller.c_str(), value);
 
   HTTPClient http;
   http.begin(url);
@@ -47,10 +51,13 @@ bool TSWSpider::setControllerValue(const String &controller, float value) {
   int code = http.GET();
   http.end();
 
-
-  #if TRACE_API_CALL
-    TRACE_PRINT("[Spider] %s : %f -> %s (HTTP %d)\n",                controller.c_str(), value, url.c_str(), code);
-  #endif
+  if (code == 200) {
+    LOG_HTTP_DEBUG("HTTP OK: %s\n", controller.c_str());
+  } else if (code > 0) {
+    LOG_HTTP_WARN("HTTP %d: %s\n", code, controller.c_str());
+  } else {
+    LOG_HTTP_ERROR("Connection failed (%d): %s\n", code, controller.c_str());
+  }
 
   return code == 200;
 }

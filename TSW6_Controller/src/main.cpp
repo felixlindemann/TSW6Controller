@@ -33,7 +33,7 @@ void updateSld(AnalogSlider &sld)
     int raw = sld.getCurrentRawValue();
     int pct = sld.getPercentValue();
     float norm = sld.getValue();
-    Serial.printf("AnalogSlider %s changed: raw=%d  pct=%d  norm=%.3f  reason=%s\n",
+    LOG_HW_DEBUG("AnalogSlider %s changed: raw=%d pct=%d norm=%.3f reason=%s\n",
                   sld.getId().c_str(), raw, pct, norm, sld.getChangeReason());
   }
 }
@@ -43,36 +43,44 @@ void updateSld(AnalogSlider &sld)
 void setup()
 {
   Serial.begin(115200);
-  delay(1000);
+
+  LOG_SYS_INFO("=== TSW6 Controller Starting ===\n"); 
   Serial.setDebugOutput(false); // unterbindet Core-Debug auf UART0
 
   SETUPDISPLAY();
 
-  LOG2DISPLAY("Booting...");
-  LOG2DISPLAY("ESP32 SDK Version: " + String(ESP.getSdkVersion()));
-  LOG2DISPLAY("Board: " + String(ARDUINO_BOARD));
-
-  LOG2DISPLAY("Build #: " + String(BUILD_NUMBER));
-  LOG2DISPLAY("   Datum: " + String(BUILD_DATE));
-  LOG2DISPLAY("Device: ");
-  LOG2DISPLAY(String(DEVICE_NAME));
+  LOG_SYS_INFO("Booting...\n");
+  LOG_SYS_DEBUG("   ESP32 SDK Version: %s\n", ESP.getSdkVersion());
+  LOG_SYS_DEBUG("   Board: %s\n", ARDUINO_BOARD);
+  LOG_SYS_DEBUG("   Build #: %s\n", BUILD_NUMBER);
+  LOG_SYS_DEBUG("   Datum: %s\n", BUILD_DATE);
+  LOG_SYS_INFO("   Device: %s\n", DEVICE_NAME);
+  LOG_SYS_DEBUG("   Free Heap: %d bytes\n", ESP.getFreeHeap());
 
   // Use full 0–3.3V range for ADC1 pins (GPIO 32–39)
 #if defined(ESP32) || defined(ESP8266) || defined(ARDUINO_ARCH_SAMD)
   analogSetWidth(12); // 12-bit resolution (0–4095)
+  LOG_HW_DEBUG("ADC configured: 12-bit resolution (0-4095)\n");
 #endif
 
 #if USE_WIFIMANAGER
-  beginWiFiManager();
-  LOG2DISPLAY("WiFi Manager started");
+  LOG_SYS_INFO("Initializing WiFi Manager...\n");
+  beginWiFiManager(); 
 #endif
   
+  LOG_SYS_INFO("Initializing TSW Spider API Client...\n");
   tswSpider->begin();
-  // tswSpider.begin();
+  
+  LOG_SW_INFO("Setting up analog sliders...\n");
   SETUP_ANALOG_SLIDER(tswSpider);
+  
+  LOG_SW_INFO("Setting up gamepad controls...\n");
   SETUP_GAMEPAD(tswSpider);
+  
+  LOG_SW_INFO("Setting up MCP button arrays...\n");
   SETUP_MCP_BUTTON_ARRAY(tswSpider);
    
+  LOG_SYS_INFO("=== Setup Complete - Entering Main Loop ===\n");
   delay(100);
 }
 
@@ -92,10 +100,11 @@ void loop()
   unsigned long now = millis();
   if (now - lastUpdate_MAINLOOP < 50)
     return; // 20 Hz polling rate
-  TRACE_PRINT("--- MAIN LOOP ---\n");
+  
+  LOG_SW_TRACE("--- MAIN LOOP @ %lu ms ---\n", now);
   UPDATE_ANALOG_SLIDER();
   UPDATE_GAMEPAD();
-   UPDATE_MCP_BUTTON_ARRAY();
+  UPDATE_MCP_BUTTON_ARRAY();
   lastUpdate_MAINLOOP = now;
   delay(1);
 }
