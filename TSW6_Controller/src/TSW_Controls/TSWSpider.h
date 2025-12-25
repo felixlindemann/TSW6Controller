@@ -32,9 +32,26 @@ private:
   String host;
   String dtgCommKey;
   uint16_t port = 31270;
+  bool serverReachable = false;
 
 public:
-  void begin(const String &ip = "10.10.78.96", uint16_t port = 3127);
+  void begin( );
   bool setControllerValue(const String &controller, float value);
   float getControllerValue(const String &controller);
+  
+  /**
+   * Check if TSW server is reachable via TCP connect.
+   * @param timeoutMs  Connection timeout in milliseconds (default: 1000)
+   * @return true if server responds, false otherwise
+   */
+  bool isServerReachable(uint16_t timeoutMs = 1000);
+  
+  /**
+   * Get last known reachability status (cached).
+   */
+  bool isOnline() const { return serverReachable; }
+  
+  // Getters for status display
+  const String& getHost() const { return host; }
+  uint16_t getPort() const { return port; }
 };

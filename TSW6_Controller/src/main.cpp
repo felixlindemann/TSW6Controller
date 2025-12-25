@@ -9,7 +9,7 @@
 #include "TSW_Controls/TSWLever.setup.h"
 #include "TSW_Controls/TSWGamePadControl.setup.h"
 #include "TSW_Controls/TSWMCPButtonArray.setup.h"
-  
+
 #include "controls/MCPButtonArray.h"
 
 #if USE_DISPLAY
@@ -20,14 +20,14 @@
 #define SETUPDISPLAY()
 #define LOG2DISPLAY(...)
 #endif
-TSWSpider* tswSpider = new TSWSpider();
+TSWSpider *tswSpider = new TSWSpider();
 unsigned long lastUpdate_MAINLOOP = 0;
- 
+
 void setup()
 {
   Serial.begin(115200);
 
-  LOG_SYS_INFO("=== TSW6 Controller Starting ===\n"); 
+  LOG_SYS_INFO("=== TSW6 Controller Starting ===\n");
   Serial.setDebugOutput(false); // unterbindet Core-Debug auf UART0
 
   SETUPDISPLAY();
@@ -48,29 +48,25 @@ void setup()
 
 #if USE_WIFIMANAGER
   LOG_SYS_INFO("Initializing WiFi Manager...\n");
-  beginWiFiManager(); 
+  beginWiFiManager();
 #endif
-  
+
   LOG_SYS_INFO("Initializing TSW Spider API Client...\n");
-  tswSpider->begin();
+  tswSpider->begin();  // Loads host/port from config internally
   
-  LOG_SW_INFO("Setting up analog sliders...\n");
+
+      LOG_SW_INFO("Setting up analog sliders...\n");
   SETUP_ANALOG_SLIDER(tswSpider);
-  
+
   LOG_SW_INFO("Setting up gamepad controls...\n");
   SETUP_GAMEPAD(tswSpider);
-  
+
   LOG_SW_INFO("Setting up MCP button arrays...\n");
   SETUP_MCP_BUTTON_ARRAY(tswSpider);
-   
+
   LOG_SYS_INFO("=== Setup Complete - Entering Main Loop ===\n");
   delay(100);
 }
-
-
- 
-
-
 
 void loop()
 {
@@ -78,12 +74,11 @@ void loop()
 #if USE_WIFIMANAGER
   loopWiFiManager();
 #endif
- 
 
   unsigned long now = millis();
   if (now - lastUpdate_MAINLOOP < 50)
     return; // 20 Hz polling rate
-  
+
   LOG_SW_TRACE("--- MAIN LOOP @ %lu ms ---\n", now);
   UPDATE_ANALOG_SLIDER();
   UPDATE_GAMEPAD();

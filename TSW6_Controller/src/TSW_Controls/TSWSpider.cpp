@@ -20,13 +20,13 @@
 #include "../config.h"
 #include "../ConfigStore.h"
 
-void TSWSpider::begin(const String &ip, uint16_t p) {
+void TSWSpider::begin() {
   // Load config first to get server settings
   loadConfig();
   
   // Use provided IP/port or fall back to config values
-  host = ip.length() > 0 ? ip : String(cfg.server.host);
-  port = p > 0 ? p : cfg.server.port;
+  host =  String(cfg.server.host);
+  port =  cfg.server.port;
   
   LOG_HTTP_INFO("Spider API initializing...\n");
   
@@ -44,23 +44,24 @@ void TSWSpider::begin(const String &ip, uint16_t p) {
 
 bool TSWSpider::setControllerValue(const String &controller, float value) {
   String url = "http://" + host + ":" + String(port) 
-                + controller + "?inputValue=" + String(value, 16);
+                + controller + "?Value=" + String(value, 16);
 
   LOG_HTTP_TRACE("SET %s = %.4f\n", controller.c_str(), value);
 
   HTTPClient http;
+  http.setConnectTimeout(2000);  // 2 Sekunden für Verbindungsaufbau
+  http.setTimeout(2000);          // 2 Sekunden für Response
   http.begin(url);
   http.addHeader("DTGCommKey", dtgCommKey);
-  http.setTimeout(300); // Nur 300ms warten statt 5000ms default
-  int code = http.GET();
+  int code = http.sendRequest("PATCH");  // PATCH ohne Body
   http.end();
 
   if (code == 200) {
     LOG_HTTP_DEBUG("HTTP OK: %s\n", controller.c_str());
   } else if (code > 0) {
-    LOG_HTTP_WARN("HTTP %d: %s\n", code, controller.c_str());
+    LOG_HTTP_WARN("HTTP %d: %s\n", code, url.c_str());
   } else {
-    LOG_HTTP_ERROR("Connection failed (%d): %s\n", code, controller.c_str());
+    LOG_HTTP_ERROR("Connection failed (%d): %s --> %s\n", code, host.c_str(), url.c_str());
   }
 
   return code == 200;
@@ -82,4 +83,27 @@ float TSWSpider::getControllerValue(const String &controller) {
   }
   http.end();
   return val;
+}
+
+bool TSWSpider::isServerReachable(uint16_t timeoutMs) {
+  WiFiClient client;
+  client.setTimeout(timeoutMs);
+  
+  unsigned long start = millis();
+  bool connected = client.connect(host.c_str(), port);
+  unsigned long elapsed = millis() - start;
+  
+  client.stop();
+  
+  serverReachable = connected;
+  
+  if (connected) {
+    LOG_HTTP_DEBUG("Server %s:%d reachable (ping: %lu ms)\n", 
+                   host.c_str(), port, elapsed);
+  } else {
+    LOG_HTTP_WARN("Server %s:%d unreachable (timeout: %d ms)\n", 
+                  host.c_str(), port, timeoutMs);
+  }
+  
+  return connected;
 }
