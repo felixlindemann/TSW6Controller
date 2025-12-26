@@ -434,6 +434,38 @@ void handleApiUpdateControl() {
 }
 
 /**
+ * GET /api/status - Get current device status (AP mode, IP, etc.).
+ */
+void handleApiGetStatus() {
+    sendCorsHeaders();
+    DynamicJsonDocument doc(512);
+    doc["apMode"] = apMode;
+    doc["mode"] = apMode ? "AP" : "Client";
+    doc["ip"] = apMode ? WiFi.softAPIP().toString() : WiFi.localIP().toString();
+    doc["ssid"] = apMode ? String(DEFAULT_AP_SSID) : WiFi.SSID();
+    doc["rssi"] = WiFi.RSSI();
+    doc["mdns"] = String(cfg.device.mdnsName) + ".local";
+    doc["deviceName"] = cfg.device.name;
+    doc["freeHeap"] = ESP.getFreeHeap();
+    doc["uptime"] = millis();
+    String json;
+    serializeJson(doc, json);
+    server.send(200, "application/json", json);
+    LOG_HTTP_DEBUG("API: GET /api/status -> apMode=%s\n", apMode ? "true" : "false");
+}
+
+/**
+ * POST /api/reboot - Reboot the device.
+ */
+void handleApiReboot() {
+    sendCorsHeaders();
+    server.send(200, "application/json", "{\"success\":true,\"message\":\"Rebooting...\"}");
+    LOG_SYS_INFO("API: Reboot requested\n");
+    delay(500);
+    ESP.restart();
+}
+
+/**
  * GET /api/config - Get current device configuration.
  */
 void handleApiGetConfig() {
@@ -467,11 +499,19 @@ void setupRestApi() {
     // CORS preflight
     server.on("/api/controls", HTTP_OPTIONS, handleCorsOptions);
     server.on("/api/config", HTTP_OPTIONS, handleCorsOptions);
+    server.on("/api/status", HTTP_OPTIONS, handleCorsOptions);
+    server.on("/api/reboot", HTTP_OPTIONS, handleCorsOptions);
     
     // Controls API
     server.on("/api/controls", HTTP_GET, handleApiGetControls);
     server.on("/api/controls/summary", HTTP_GET, handleApiGetControlsSummary);
     server.on("/api/controls/values", HTTP_GET, handleApiGetControlValues);
+    
+    // Status API
+    server.on("/api/status", HTTP_GET, handleApiGetStatus);
+    
+    // Reboot API
+    server.on("/api/reboot", HTTP_POST, handleApiReboot);
     
     // Config API
     server.on("/api/config", HTTP_GET, handleApiGetConfig);
