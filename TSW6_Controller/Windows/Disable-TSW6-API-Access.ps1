@@ -15,24 +15,20 @@ Write-Host "==============================================================="
 Write-Host "TSW6 External API Cleanup"
 Write-Host "==============================================================="
 
+Write-Host "entferne TSW-Firewall-Einträge..."  
 # Firewallregel entfernen
 $existingRule = Get-NetFirewallRule -DisplayName $RuleName -ErrorAction SilentlyContinue
 if ($existingRule) {
     Remove-NetFirewallRule -DisplayName $RuleName
     Write-Host "✅ Firewall-Regel entfernt."
 }
-
-# Portproxy entfernen
-Write-Host "---------------------------------------------------------------"
-Write-Host "Entferne Portproxy für Port $Port..."
-Write-Host "---------------------------------------------------------------"
-netsh interface portproxy delete v4tov4 listenport=$Port listenaddress=0.0.0.0
-Write-Host "✅ Portproxy entfernt."
-
+else {
+    Write-Host "ℹ️ Keine Firewall-Regel gefunden."
+}
 # engine.ini bereinigen
 if (Test-Path $enginePath) {
     $content = Get-Content $enginePath
-    $newContent = $content | Where-Object { $_ -notmatch '^\[HTTPServer\.Listeners\]' -and $_ -notmatch '^bind=' }
+    $newContent = $content | Where-Object { $_ -notmatch '^\[HTTPServer\.Listeners\]' -and $_ -notmatch '^DefaultBindAdress=' }
     Set-Content -Path $enginePath -Value $newContent
     Write-Host "✅ engine.ini bereinigt."
 }

@@ -57,6 +57,8 @@ switch ($choice) {
     }
 }
 
+Read-Host "Bevor es weitergeht, stelle sicher, dass Train Sim World 6 geschlossen ist. Drücke Enter, um fortzufahren..."
+
 # Engine.ini anpassen
 Write-Host ""
 Write-Host "---------------------------------------------------------------"
@@ -71,8 +73,8 @@ if ($engineChoice -match '^[JjYy]') {
         New-Item -Path $enginePath -ItemType File -Force | Out-Null
     }
     $sectionHeader = "[HTTPServer.Listeners]"
-    $bindLine = "bind=$bindValue"
-    $content = Get-Content $enginePath -ErrorAction SilentlyContinue | Where-Object { $_ -notmatch '^\[HTTPServer\.Listeners\]' -and $_ -notmatch '^bind=' }
+    $bindLine = "DefaultBindAdress=$bindValue"
+    $content = Get-Content $enginePath -ErrorAction SilentlyContinue | Where-Object { $_ -notmatch '^\[HTTPServer\.Listeners\]' -and $_ -notmatch '^DefaultBindAdress=' }
     Add-Content -Path $enginePath -Value "`r`n$sectionHeader`r`n$bindLine`r`n"
     Write-Host "✅ engine.ini angepasst: $bindLine"
 }
@@ -81,23 +83,25 @@ if ($engineChoice -match '^[JjYy]') {
 if (-not (Test-Path $keyFile)) {
     Set-Content -Path $keyFile -Value $initialKey
     Write-Host "✅ CommAPIKey.txt erstellt."
-}
-
-# Portproxy hinzufügen
-Write-Host ""
-Write-Host "---------------------------------------------------------------"
-Write-Host "Richte Portproxy ein, um externe Zugriffe zu erlauben..."
-Write-Host "---------------------------------------------------------------"
-netsh interface portproxy add v4tov4 listenport=$Port listenaddress=0.0.0.0 connectport=$Port connectaddress=127.0.0.1
-Write-Host "✅ Portproxy erstellt: 0.0.0.0:$Port → 127.0.0.1:$Port"
-
+} 
 # Explorer öffnen
 if (Test-Path $basePath) {
     Start-Process explorer.exe $basePath
 }
 
+# GitHub-Dokumentation öffnen
+Write-Host ""
+Write-Host "---------------------------------------------------------------"
+$githubChoice = Read-Host "Möchtest du die GitHub-Dokumentation für weitere Informationen öffnen? (J/N)"
+if ($githubChoice -match '^[JjYy]') {
+    Start-Process "https://github.com/felixlindemann/TSW6Controller"
+    Write-Host "✅ GitHub-Seite wird im Browser geöffnet."
+}
+
 Write-Host ""
 Write-Host "==============================================================="
-Write-Host "Setup abgeschlossen. Prüfe mit:"
-Write-Host "netsh interface portproxy show all"
+Write-Host "Setup abgeschlossen."
+Write-Host "Du kannst nun Train Sim World 6 starten und die API nutzen."
 Write-Host "==============================================================="
+
+ 
