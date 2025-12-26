@@ -1,39 +1,57 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark w-100">
-	<div class="container-fluid">
-		<a class="navbar-brand" href="#">TSW6 Controller</a>
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-			<span class="navbar-toggler-icon"></span>
-		</button>
-		<div class="collapse navbar-collapse" id="navbarSupportedContent">
-			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-				<li class="nav-item">
-					<a class="nav-link" routerLink="/list" routerLinkActive="active">Explorer</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" routerLink="/wifi-config" routerLinkActive="active">WLAN-Konfiguration</a>
-				</li>
-			</ul>
-			<button class="btn btn-danger ms-2" (click)="onRebootClick()">Neustart Arduino</button>
-		</div>
+  <div class="container">
+    <a class="navbar-brand" href="#">TSW6 Controller</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/list" routerLinkActive="active">Explorer</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item dropdown" [class.show]="isConfigDropdownOpen" (mouseleave)="isConfigDropdownOpen = false">
+          <a class="nav-link dropdown-toggle" href="#" id="configDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+            (click)="$event.preventDefault(); isConfigDropdownOpen = !isConfigDropdownOpen"
+            [class.active]="isConfigDropdownActive()">
+            Arduino-Konfig
+          </a>
+          <ul class="dropdown-menu" [class.show]="isConfigDropdownOpen" aria-labelledby="configDropdown">
+            <li>
+              <a class="dropdown-item" routerLink="/wifi-config" routerLinkActive="active" (click)="isConfigDropdownOpen = false">WLAN-Konfiguration</a>
+            </li>
+            <li>
+              <a class="dropdown-item" routerLink="/server-config" routerLinkActive="active" (click)="isConfigDropdownOpen = false">Server-Konfiguration</a>
+            </li>
+            <li>
+              <a class="dropdown-item" routerLink="/dns-config" routerLinkActive="active" (click)="isConfigDropdownOpen = false">DNS-Konfiguration</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <button class="btn btn-danger ms-2" (click)="onRebootClick()">Neustart Arduino</button>
+    </div>
 
-		<!-- Modal -->
-		<div class="modal fade show" tabindex="-1" [ngClass]="{ 'd-block': showModal }" *ngIf="showModal" style="background:rgba(0,0,0,0.5)">
-			<div class="modal-dialog modal-dialog-centered">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title">Neustart</h5>
-					</div>
-					<div class="modal-body">
-						<ng-container *ngIf="!showError; else errorTpl">
-							<p>Bitte warten...</p>
-						</ng-container>
-						<ng-template #errorTpl>
-							<p class="text-danger">Fehler: Die Verbindung zur API konnte nach 15 Sekunden nicht wiederhergestellt werden.</p>
-						</ng-template>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    <!-- Modal -->
+    <div class="modal fade show" tabindex="-1" [ngClass]="{ 'd-block': showModal }" *ngIf="showModal" style="background:rgba(0,0,0,0.5)">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Neustart</h5>
+          </div>
+          <div class="modal-body">
+            <ng-container *ngIf="!showError; else errorTpl">
+              <p>Bitte warten...</p>
+            </ng-container>
+            <ng-template #errorTpl>
+              <p class="text-danger">Fehler: Die Verbindung zur API konnte nach 15 Sekunden nicht wiederhergestellt werden.</p>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Modal-Ende und Navbar-Ende -->
+  </div>
 </nav>

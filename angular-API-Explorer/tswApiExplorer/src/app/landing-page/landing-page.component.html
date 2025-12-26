@@ -1,0 +1,45 @@
+<div class="container mt-5">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h2 class="mb-0">Willkommen zum TSW6 Controller Web-Frontend</h2>
+    </div>
+    <div class="card-body">
+      <h5>Was ist das?</h5>
+      <p>
+        Dieses Web-Frontend ermöglicht die komfortable Konfiguration und Steuerung des TSW6 Controllers über das Netzwerk. 
+        Sie können WLAN-Einstellungen, Server- und DNS-Konfiguration sowie weitere Optionen bequem im Browser anpassen.
+      </p>
+      <h5>Wie funktioniert es?</h5>
+      <ol>
+        <li>Verbinden Sie Ihren PC oder Ihr mobiles Gerät mit dem WLAN des TSW6 Controllers oder dem gleichen Netzwerk.</li>
+        <li>Öffnen Sie diese Seite im Browser (z.B. über die IP-Adresse des Controllers).</li>
+        <li>Nutzen Sie die Navigationsleiste, um die gewünschten Einstellungen vorzunehmen.</li>
+        <li>Speichern Sie Ihre Änderungen – der Controller übernimmt die Konfiguration automatisch.</li>
+      </ol>
+      <h5>Hinweise</h5>
+      <ul>
+        <li>Die Änderungen an WLAN, Server oder DNS werden direkt auf dem Controller gespeichert.</li>
+        <li>Ein Neustart des Controllers ist über die Navigationsleiste möglich.</li>
+        <li>Für die Verbindung zum TSW6-Server benötigen Sie den passenden TSW-API-KEY.</li>
+      </ul>
+      <div class="alert alert-info mt-4">
+        <strong>Tipp:</strong> Über die "Arduino-Konfig"-Schaltfläche oben rechts gelangen Sie zu allen wichtigen Einstellungen.
+      </div>
+
+      <hr class="my-5">
+      <h5 class="mt-4">WINDOWS-Firewall</h5>
+      <p>
+        Damit der TSW6 Controller mit dem TSW6-Server auf Ihrem Windows-PC kommunizieren kann, müssen bestimmte Ports in der Windows-Firewall freigegeben werden.
+        Nutzen Sie dazu die bereitgestellten Skripte, die Sie mit Administratorrechten ausführen sollten. Die ZIP-Datei enthält sowohl CMD- als auch PowerShell-Skripte zum Aktivieren und Deaktivieren des API-Zugriffs.
+      </p>
+      <ul>
+        <li>Entpacken Sie das ZIP-Archiv nach dem Download.</li>
+        <li>Führen Sie das gewünschte Skript per Rechtsklick als Administrator aus.</li>
+        <li>Die Skripte passen die Firewall-Regeln automatisch an.</li>
+      </ul>
+      <a href="assets/TSW6_Windows_Skripte.zip" class="btn btn-primary" download>
+        Windows-Firewall-Skripte herunterladen
+      </a>
+    </div>
+  </div>
+</div>

@@ -1,6 +1,9 @@
 import { Routes, UrlMatchResult, UrlSegment } from '@angular/router'; 
 import { ExplorerPageComponent } from './explorer-page/explorer-page.component';
 import { WifiConfigEditorComponent } from './wifi-config-editor/wifi-config-editor.component';
+import { ServerConfigEditorComponent } from './server-config-editor/server-config-editor.component'; 
+import { DnsConfigEditorComponent } from './device-config-editor';
+import { LandingPageComponent } from './landing-page/landing-page.component';
 
 function listMatcher(segments: UrlSegment[]): UrlMatchResult | null {
   // Match:
@@ -19,10 +22,17 @@ function listMatcher(segments: UrlSegment[]): UrlMatchResult | null {
 }
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'list' },
+  { path: '', pathMatch: 'full', component: LandingPageComponent },
+  { path: 'home', component: LandingPageComponent },
 
   // WifiConfig Editor
   { path: 'wifi-config', component: WifiConfigEditorComponent },
+
+  // ServerConfig Editor
+  { path: 'server-config', component: ServerConfigEditorComponent },
+
+  // DNSConfig Editor
+  { path: 'dns-config', component: DnsConfigEditorComponent },
 
   // /list (no nodePath)
   { path: 'list', component: ExplorerPageComponent },

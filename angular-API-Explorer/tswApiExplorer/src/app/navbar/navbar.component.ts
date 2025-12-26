@@ -15,6 +15,7 @@ import { ArduinoApiService } from '../core/arduino-api.service';
 export class NavbarComponent {
   showModal = false;
   showError = false;
+  isConfigDropdownOpen = false;
   private pollInterval: any;
   private pollTimeout: any;
 
@@ -27,6 +28,15 @@ export class NavbarComponent {
       next: () => this.startPolling(),
       error: () => this.startPolling()
     });
+  }
+
+  isConfigDropdownActive(): boolean {
+    // Aktiv, wenn einer der drei Routen aktiv ist
+    return [
+      '/wifi-config',
+      '/server-config',
+      '/dns-config'
+    ].some(path => window.location.pathname.endsWith(path));
   }
 
   private startPolling() {

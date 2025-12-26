@@ -1,0 +1,32 @@
+<div class="card mt-4">
+  <div class="card-header">
+    <h5 class="mb-0">TSW-Server-Konfiguration</h5>
+  </div>
+  <div class="card-body">
+    <form *ngIf="serverConfig" (ngSubmit)="saveConfig()" #form="ngForm">
+  <div class="row mb-3">
+    <div class="col">
+      <label for="host" class="form-label">Host (IP-Adresse des PC, auf dem TSW läuft)</label>
+      <input id="host" name="host" class="form-control" [(ngModel)]="serverConfig.host" required pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$" #hostInput="ngModel" />
+      <div *ngIf="hostInput.invalid && hostInput.touched" class="text-danger small">Bitte eine gültige IPv4-Adresse eingeben.</div>
+    </div>
+    <div class="col-4">
+      <label for="port" class="form-label">Port (TCP-Port)</label>
+      <input id="port" name="port" class="form-control" type="number" [(ngModel)]="serverConfig.port" required min="1" max="65535" #portInput="ngModel" />
+      <div *ngIf="portInput.invalid && portInput.touched" class="text-danger small">Bitte einen gültigen TCP-Port (1-65535) eingeben.</div>
+    </div>
+  </div>
+  <div class="mb-3">
+    <label for="apiKey" class="form-label">TSW-API-KEY</label>
+    <input id="apiKey" name="apiKey" class="form-control" [(ngModel)]="serverConfig.apiKey" type="text" autocomplete="off" />
+  </div>
+  <button class="btn btn-primary" type="submit" [disabled]="saving || loading || form.invalid">Speichern</button>
+  <button class="btn btn-secondary ms-2" type="button" (click)="loadConfig()" [disabled]="loading">Neu laden</button>
+  <span *ngIf="saveSuccess === true" class="text-success ms-2">Gespeichert!</span>
+  <span *ngIf="saveSuccess === false" class="text-danger ms-2">Fehler beim Speichern</span>
+    </form>
+    <div *ngIf="!serverConfig && !loading && !error" class="text-muted">Keine Server-Konfiguration geladen.</div>
+    <div *ngIf="error" class="text-danger">{{ error }}</div>
+    <div *ngIf="loading" class="text-muted">Lade Server-Konfiguration...</div>
+  </div>
+</div>

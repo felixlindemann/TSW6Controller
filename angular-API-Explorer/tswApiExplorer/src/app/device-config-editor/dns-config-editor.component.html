@@ -1,0 +1,24 @@
+<div class="card mt-4">
+  <div class="card-header">
+    <h5 class="mb-0">DNS-Konfiguration</h5>
+  </div>
+  <div class="card-body">
+    <form *ngIf="deviceConfig" (ngSubmit)="saveConfig()" #form="ngForm">
+      <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input id="name" name="name" class="form-control" [(ngModel)]="deviceConfig.name" required />
+      </div>
+      <div class="mb-3">
+        <label for="mdnsName" class="form-label">mDNS-Name</label>
+        <input id="mdnsName" name="mdnsName" class="form-control" [(ngModel)]="deviceConfig.mdnsName" required />
+      </div>
+      <button class="btn btn-primary" type="submit" [disabled]="saving || loading">Speichern</button>
+      <button class="btn btn-secondary ms-2" type="button" (click)="loadConfig()" [disabled]="loading">Neu laden</button>
+      <span *ngIf="saveSuccess === true" class="text-success ms-2">Gespeichert!</span>
+      <span *ngIf="saveSuccess === false" class="text-danger ms-2">Fehler beim Speichern</span>
+    </form>
+    <div *ngIf="!deviceConfig && !loading && !error" class="text-muted">Keine DNS-Konfiguration geladen.</div>
+    <div *ngIf="error" class="text-danger">{{ error }}</div>
+    <div *ngIf="loading" class="text-muted">Lade DNS-Konfiguration...</div>
+  </div>
+</div>

@@ -191,7 +191,7 @@ inline void configToJson(JsonDocument& doc) {
   JsonObject server = doc.createNestedObject("server");
   server["host"] = cfg.server.host;
   server["port"] = cfg.server.port;
-  server["apiKey"] = "********";  // Don't expose API key
+  server["apiKey"] = cfg.server.apiKey;  // Don't expose API key
   
   // Device section
   JsonObject device = doc.createNestedObject("device");
