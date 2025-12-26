@@ -1,0 +1,42 @@
+
+<div class="card mt-4">
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<span>WLAN-Konfiguration</span>
+		<button class="btn btn-outline-secondary btn-sm" (click)="loadConfig()" [disabled]="loading">
+			<span *ngIf="!loading">&#x21bb; Refresh</span>
+			<span *ngIf="loading" class="spinner-border spinner-border-sm"></span>
+		</button>
+	</div>
+	<div class="card-body">
+		<div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+		<form *ngIf="wifiConfig">
+			<div class="mb-3">
+				<label class="form-label">SSID</label>
+				<input class="form-control" [(ngModel)]="wifiConfig.ssid" name="ssid" />
+			</div>
+			<div class="mb-3">
+				<label class="form-label">Passwort</label>
+				<input class="form-control" [(ngModel)]="wifiConfig.password" name="password" type="password" />
+			</div>
+			<div class="mb-3 form-check">
+				<input class="form-check-input" type="checkbox" [(ngModel)]="wifiConfig.apModePreferred" name="apModePreferred" id="apModePreferred">
+				<label class="form-check-label" for="apModePreferred">AP-Modus bevorzugen</label>
+			</div>
+			<div class="mb-3">
+				<label class="form-label">AP-Check-Intervall (ms)</label>
+				<input class="form-control" type="number" [(ngModel)]="wifiConfig.apCheckInterval" name="apCheckInterval" />
+			</div>
+			<div class="mb-3">
+				<label class="form-label">Heartbeat-Intervall (ms)</label>
+				<input class="form-control" type="number" [(ngModel)]="wifiConfig.heartbeatInterval" name="heartbeatInterval" />
+			</div>
+			<button class="btn btn-primary" type="button" (click)="saveConfig()" [disabled]="saving || loading">
+				<span *ngIf="!saving">Speichern</span>
+				<span *ngIf="saving" class="spinner-border spinner-border-sm"></span>
+			</button>
+			<span *ngIf="saveSuccess === true" class="text-success ms-2">Gespeichert!</span>
+			<span *ngIf="saveSuccess === false" class="text-danger ms-2">Fehler beim Speichern</span>
+		</form>
+		<div *ngIf="!wifiConfig && !loading && !error" class="text-muted">Keine Konfiguration geladen.</div>
+	</div>
+</div>

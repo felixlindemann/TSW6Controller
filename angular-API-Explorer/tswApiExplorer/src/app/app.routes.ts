@@ -1,5 +1,6 @@
 import { Routes, UrlMatchResult, UrlSegment } from '@angular/router'; 
 import { ExplorerPageComponent } from './explorer-page/explorer-page.component';
+import { WifiConfigEditorComponent } from './wifi-config-editor/wifi-config-editor.component';
 
 function listMatcher(segments: UrlSegment[]): UrlMatchResult | null {
   // Match:
@@ -19,6 +20,9 @@ function listMatcher(segments: UrlSegment[]): UrlMatchResult | null {
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'list' },
+
+  // WifiConfig Editor
+  { path: 'wifi-config', component: WifiConfigEditorComponent },
 
   // /list (no nodePath)
   { path: 'list', component: ExplorerPageComponent },
