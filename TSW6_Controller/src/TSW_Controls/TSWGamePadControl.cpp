@@ -47,7 +47,7 @@ void TSWGamePadControl::loadNotchesX(const String &filePath) {
     // Apply inverted setting from config to hardware gamepad X axis
     gamepad.setXInverted(notchX.isInverted());
     LOG_SW_DEBUG("%s: X-axis inverted=%s (from config)\n", 
-                 getId().c_str(), notchX.isInverted() ? "true" : "false");
+           getControllerName().c_str(), notchX.isInverted() ? "true" : "false");
   }
 }
 
@@ -56,7 +56,7 @@ void TSWGamePadControl::loadNotchesY(const String &filePath) {
     // Apply inverted setting from config to hardware gamepad Y axis
     gamepad.setYInverted(notchY.isInverted());
     LOG_SW_DEBUG("%s: Y-axis inverted=%s (from config)\n", 
-                 getId().c_str(), notchY.isInverted() ? "true" : "false");
+           getControllerName().c_str(), notchY.isInverted() ? "true" : "false");
   }
 }
 
