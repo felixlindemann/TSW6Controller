@@ -1,3 +1,11 @@
+/* Modal zentrieren und Overlay */
+.modal.d-block {
+	display: block;
+}
+.modal {
+	background: rgba(0,0,0,0.5);
+	z-index: 2000;
+}
 
 /* Volle Breite (container-fluid ist bereits gesetzt) */
 .navbar {

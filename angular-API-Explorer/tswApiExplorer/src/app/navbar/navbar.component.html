@@ -14,6 +14,21 @@
 					<a class="nav-link" routerLink="/wifi-config" routerLinkActive="active">WLAN-Konfiguration</a>
 				</li>
 			</ul>
+			<button class="btn btn-danger ms-2" (click)="onRebootClick()">Neustart Arduino</button>
+		</div>
+
+		<!-- Modal -->
+		<div class="modal fade show" tabindex="-1" [ngClass]="{ 'd-block': showModal }" *ngIf="showModal" style="background:rgba(0,0,0,0.5)">
+		  <div class="modal-dialog modal-dialog-centered">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title">Neustart</h5>
+		      </div>
+		      <div class="modal-body">
+		        <p>Bitte warten...</p>
+		      </div>
+		    </div>
+		  </div>
 		</div>
 	</div>
 </nav>
