@@ -1,0 +1,19 @@
+@startuml CaptivePortal
+actor User
+participant "WLAN Client" as Client
+participant "ESP32 Webserver" as ESP
+participant "Angular UI" as Angular
+
+== Verbindung und Captive Portal ==
+User -> Client: WLAN verbinden (AP-Modus)
+Client -> ESP: HTTP-Request (z.B. /generate_204)
+ESP -> Client: HTTP 302 Redirect (Location: /)
+Client -> ESP: GET /
+ESP -> Angular: Liefere Angular-UI (index.html)
+Angular -> Client: UI wird angezeigt
+
+== API-Kommunikation ==
+User -> Angular: Bedienung UI
+Angular -> ESP: API-Request (/api/...)
+ESP --> Angular: API-Response (JSON)
+@enduml
