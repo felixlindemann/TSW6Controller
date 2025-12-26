@@ -19,16 +19,21 @@
 
 		<!-- Modal -->
 		<div class="modal fade show" tabindex="-1" [ngClass]="{ 'd-block': showModal }" *ngIf="showModal" style="background:rgba(0,0,0,0.5)">
-		  <div class="modal-dialog modal-dialog-centered">
-		    <div class="modal-content">
-		      <div class="modal-header">
-		        <h5 class="modal-title">Neustart</h5>
-		      </div>
-		      <div class="modal-body">
-		        <p>Bitte warten...</p>
-		      </div>
-		    </div>
-		  </div>
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Neustart</h5>
+					</div>
+					<div class="modal-body">
+						<ng-container *ngIf="!showError; else errorTpl">
+							<p>Bitte warten...</p>
+						</ng-container>
+						<ng-template #errorTpl>
+							<p class="text-danger">Fehler: Die Verbindung zur API konnte nach 15 Sekunden nicht wiederhergestellt werden.</p>
+						</ng-template>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </nav>

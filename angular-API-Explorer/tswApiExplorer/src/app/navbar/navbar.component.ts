@@ -14,22 +14,51 @@ import { ArduinoApiService } from '../core/arduino-api.service';
 })
 export class NavbarComponent {
   showModal = false;
+  showError = false;
+  private pollInterval: any;
+  private pollTimeout: any;
 
   constructor(private arduinoApi: ArduinoApiService) {}
 
   onRebootClick() {
     this.showModal = true;
+    this.showError = false;
     this.arduinoApi.reboot().subscribe({
-      next: () => {
-        setTimeout(() => {
-          this.showModal = false;
-        }, 10000);
-      },
-      error: () => {
-        setTimeout(() => {
-          this.showModal = false;
-        }, 10000);
-      }
+      next: () => this.startPolling(),
+      error: () => this.startPolling()
     });
+  }
+
+  private startPolling() {
+    let elapsed = 0;
+    this.pollInterval = setInterval(() => {
+      elapsed += 500;
+      this.arduinoApi.getStatus().subscribe({
+        next: () => {
+          this.closeModal();
+        },
+        error: () => {
+          if (elapsed >= 15000) {
+            this.showErrorModal();
+          }
+        }
+      });
+    }, 500);
+    this.pollTimeout = setTimeout(() => {
+      this.showErrorModal();
+    }, 15000);
+  }
+
+  private closeModal() {
+    this.showModal = false;
+    this.showError = false;
+    clearInterval(this.pollInterval);
+    clearTimeout(this.pollTimeout);
+  }
+
+  private showErrorModal() {
+    this.showError = true;
+    clearInterval(this.pollInterval);
+    clearTimeout(this.pollTimeout);
   }
 }
