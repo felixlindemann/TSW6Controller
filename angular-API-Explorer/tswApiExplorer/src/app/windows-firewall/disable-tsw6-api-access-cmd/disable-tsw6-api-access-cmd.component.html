@@ -1,0 +1,32 @@
+<div class="card-body">
+<p>    Mit <a href="https://github.com/felixlindemann/TSW6Controller/blob/main/TSW6_Controller/Windows/Disable-TSW6-API-Access.cmd" target="_blank" rel="noopener"><code>Disable-TSW6-API-Access.cmd</code></a> kannst du das powershell-Script ausführen.
+</p>
+<div class="alert alert-danger" role="alert">
+  Achtung: Das Skript muss mit Administrator-Rechten ausgeführt werden!<br> Das Ausführen erfolgt auf eigene Gefahr. -- Stelle sicher, dass du dem Skript vertraust, bevor du es ausführst. 
+</div>
+</div>
+<div class="card-body text-bg-light mb-3">
+    <small>
+<pre><code class="language-batch">
+{{'@'}}echo off
+:: ===============================================================
+::  Disable-TSW6-API-Access.cmd
+::
+::  (c) 2025 Felix Lindemann. All rights reserved.
+::  Nutzung auf eigenes Risiko.
+::  Dieses Skript wird ohne Garantie bereitgestellt („as is“).
+:: ===============================================================
+
+echo.
+echo ===============================================================
+echo  TSW6 External API Cleanup (CMD-Starter)
+echo ===============================================================
+echo.
+
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "Start-Process PowerShell -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File \"%~dp0Disable-TSW6-API-Access.ps1\"' -Verb RunAs"
+
+pause
+</code></pre>
+</small>
+</div>

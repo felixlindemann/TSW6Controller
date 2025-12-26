@@ -1,0 +1,37 @@
+<div class="container mt-5">
+	<div class="card shadow">
+		<div class="card-header bg-secondary text-white">
+			<h2 class="mb-0">Windows Firewall – API-Freigabe</h2>
+		</div>
+		<div class="card-body">
+			<h5>Port-Freigabe für TSW6 API</h5>
+			<p>
+				Damit der TSW6 Controller mit dem TSW6-Server auf Ihrem Windows-PC kommunizieren kann, 
+                muss der Port <strong>31270</strong> in der Windows-Firewall geöffnet werden.
+                <br/>
+                Darüber hinaus muss die engine.ini-Datei von TSW6 angepasst werden, um den API-Zugriff von anderen Geräten zu ermöglichen. 
+            </p>
+            <a class="btn btn-secondary" href="https://github.com/felixlindemann/TSW6Controller/tree/main/TSW6_Controller/Windows" 
+                target="_blank" rel="noopener">Weitere Informationen</a>
+        </div>
+
+		<ul class="nav nav-tabs mt-4">
+			<li class="nav-item">
+				<a class="nav-link" [routerLink]="['enable-ps']" routerLinkActive="active">enable-tsw-6-api-access.ps1</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" [routerLink]="['enable-cmd']" routerLinkActive="active">enable-tsw-6-api-access.cmd</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" [routerLink]="['disable-ps']" routerLinkActive="active">disable-tsw-6-api-access.ps1</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" [routerLink]="['disable-cmd']" routerLinkActive="active">disable-tsw-6-api-access.cmd</a>
+			</li>
+		</ul>
+		<div class="mt-3">
+			<router-outlet></router-outlet>
+		</div>
+ 
+    </div>
+</div>

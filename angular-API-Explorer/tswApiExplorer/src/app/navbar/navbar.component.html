@@ -12,6 +12,21 @@
         </li>
       </ul>
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item dropdown me-2" [class.show]="isWindowsDropdownOpen" (mouseleave)="isWindowsDropdownOpen = false">
+          <a class="nav-link dropdown-toggle" href="#" id="windowsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+            (click)="$event.preventDefault(); isWindowsDropdownOpen = !isWindowsDropdownOpen"
+            [class.active]="isWindowsDropdownActive()">
+            Setup Windows
+          </a>
+          <ul class="dropdown-menu" [class.show]="isWindowsDropdownOpen" aria-labelledby="windowsDropdown">
+            <li>
+              <a class="dropdown-item" routerLink="/windows-firewall" routerLinkActive="active" (click)="isWindowsDropdownOpen = false">Firewall Konfiguration</a>
+            </li>
+            <li>
+              <a class="dropdown-item" routerLink="/server-config" routerLinkActive="active" (click)="isConfigDropdownOpen = false">Server-Konfiguration</a>
+            </li>
+          </ul>
+        </li>
         <li class="nav-item dropdown" [class.show]="isConfigDropdownOpen" (mouseleave)="isConfigDropdownOpen = false">
           <a class="nav-link dropdown-toggle" href="#" id="configDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
             (click)="$event.preventDefault(); isConfigDropdownOpen = !isConfigDropdownOpen"
@@ -21,9 +36,6 @@
           <ul class="dropdown-menu" [class.show]="isConfigDropdownOpen" aria-labelledby="configDropdown">
             <li>
               <a class="dropdown-item" routerLink="/wifi-config" routerLinkActive="active" (click)="isConfigDropdownOpen = false">WLAN-Konfiguration</a>
-            </li>
-            <li>
-              <a class="dropdown-item" routerLink="/server-config" routerLinkActive="active" (click)="isConfigDropdownOpen = false">Server-Konfiguration</a>
             </li>
             <li>
               <a class="dropdown-item" routerLink="/dns-config" routerLinkActive="active" (click)="isConfigDropdownOpen = false">DNS-Konfiguration</a>

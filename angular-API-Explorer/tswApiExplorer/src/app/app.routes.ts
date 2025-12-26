@@ -4,7 +4,11 @@ import { WifiConfigEditorComponent } from './wifi-config-editor/wifi-config-edit
 import { ServerConfigEditorComponent } from './server-config-editor/server-config-editor.component'; 
 import { DnsConfigEditorComponent } from './device-config-editor';
 import { LandingPageComponent } from './landing-page/landing-page.component';
-
+import { WindowsFirewallComponent } from './windows-firewall/windows-firewall.component'; 
+import { EnableTsw6ApiAccessPsComponent } from './windows-firewall/enable-tsw6-api-access-ps/enable-tsw6-api-access-ps.component';
+import { EnableTsw6ApiAccessCmdComponent } from './windows-firewall/enable-tsw6-api-access-cmd/enable-tsw6-api-access-cmd.component';
+import { DisableTsw6ApiAccessPsComponent } from './windows-firewall/disable-tsw6-api-access-ps/disable-tsw6-api-access-ps.component';
+import { DisableTsw6ApiAccessCmdComponent } from './windows-firewall/disable-tsw6-api-access-cmd/disable-tsw6-api-access-cmd.component';
 function listMatcher(segments: UrlSegment[]): UrlMatchResult | null {
   // Match:
   //  - /list
@@ -27,6 +31,19 @@ export const routes: Routes = [
 
   // WifiConfig Editor
   { path: 'wifi-config', component: WifiConfigEditorComponent },
+  
+  // WifiConfig Editor
+  { 
+    path: 'windows-firewall', 
+    component: WindowsFirewallComponent,
+    children: [
+      { path: '', redirectTo: 'enable-ps', pathMatch: 'full' },
+      { path: 'enable-ps', component: EnableTsw6ApiAccessPsComponent },
+      { path: 'enable-cmd', component: EnableTsw6ApiAccessCmdComponent },
+      { path: 'disable-ps', component: DisableTsw6ApiAccessPsComponent },
+      { path: 'disable-cmd', component: DisableTsw6ApiAccessCmdComponent }
+    ]
+  },
 
   // ServerConfig Editor
   { path: 'server-config', component: ServerConfigEditorComponent },

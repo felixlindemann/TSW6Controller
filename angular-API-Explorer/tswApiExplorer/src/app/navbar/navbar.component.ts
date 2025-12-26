@@ -1,4 +1,5 @@
 
+
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -16,8 +17,14 @@ export class NavbarComponent {
   showModal = false;
   showError = false;
   isConfigDropdownOpen = false;
+  isWindowsDropdownOpen = false;
   private pollInterval: any;
   private pollTimeout: any;
+
+  isWindowsDropdownActive(): boolean {
+    // Aktiv, wenn eine der Windows-Firewall-Routen aktiv ist
+    return window.location.pathname.startsWith('/windows-firewall');
+  }
 
   constructor(private arduinoApi: ArduinoApiService) {}
 
