@@ -20,16 +20,9 @@
 			</div>
 			<div class="mb-3 form-check">
 				<input class="form-check-input" type="checkbox" [(ngModel)]="wifiConfig.apModePreferred" name="apModePreferred" id="apModePreferred">
-				<label class="form-check-label" for="apModePreferred">AP-Modus bevorzugen</label>
+				<label class="form-check-label" for="apModePreferred">AP-Modus verwenden</label>
 			</div>
-			<div class="mb-3">
-				<label class="form-label">AP-Check-Intervall (ms)</label>
-				<input class="form-control" type="number" [(ngModel)]="wifiConfig.apCheckInterval" name="apCheckInterval" />
-			</div>
-			<div class="mb-3">
-				<label class="form-label">Heartbeat-Intervall (ms)</label>
-				<input class="form-control" type="number" [(ngModel)]="wifiConfig.heartbeatInterval" name="heartbeatInterval" />
-			</div>
+
 			<button class="btn btn-primary" type="button" (click)="saveConfig()" [disabled]="saving || loading">
 				<span *ngIf="!saving">Speichern</span>
 				<span *ngIf="saving" class="spinner-border spinner-border-sm"></span>

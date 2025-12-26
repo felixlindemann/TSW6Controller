@@ -1,24 +1,39 @@
 
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-	<div class="container">
-		<a class="navbar-brand" href="#">TSW6 Controller</a>
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-			<span class="navbar-toggler-icon"></span>
-		</button>
-		<div class="collapse navbar-collapse" id="navbarSupportedContent">
-			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-				<li class="nav-item">
-					<a class="nav-link" routerLink="/list" routerLinkActive="active">Explorer</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" routerLink="/wifi-config" routerLinkActive="active">WLAN-Konfiguration</a>
-				</li>
-			</ul>
-		</div>
-	</div>
-</nav>
+<app-navbar></app-navbar>
 
 <div class="container mt-3">
 	<router-outlet />
 </div>
+
+
+  <!-- Footer -->
+  <footer class="mt-5 py-4 border-top">
+    <div class="text-center">
+      <p class="mb-2">
+        Made with <span class="text-danger">❤️</span> by Felix for Ole using
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 272" class="align-text-bottom mx-1">
+          <path fill="#DD0031" d="M.1 45.522L125.908.697l129.196 44.028l-20.919 166.45l-108.277 59.966l-106.583-59.169z"/>
+          <path fill="#C3002F" d="M255.104 44.725L125.908.697v270.444l108.277-59.866z"/>
+          <path fill="#FFF" d="m126.107 32.274l-63.292 141.95l23.609-.208l12.742-31.795h55.485l13.677 31.83l22.548.296l-64.769-142.073m-.299 47.021l19.788 45.417h-39.51z"/>
+        </svg>
+        Angular &amp;
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 256 256" class="align-text-bottom mx-1">
+          <path fill="#7952B3" d="M0 222.991C0 241.223 14.779 256 33.009 256H222.99C241.223 256 256 241.221 256 222.991V33.01C256 14.777 241.221 0 222.991 0H33.01C14.777 0 0 14.779 0 33.009z"/>
+          <path fill="#FFF" d="M106.158 113.238C106.158 96.787 95.466 86.124 75.838 86.124H50.357V161.168H67.005V138.851h8.312c21.748 0 30.842-11.62 30.842-25.613m-39.153 12.649V101.02h8.312c9.598 0 14.408 4.16 14.408 12.426c0 8.267-4.81 12.441-14.408 12.441zM194.938 161.168l-21.078-35.146c11.227-3.93 17.513-12.636 17.513-24.176c0-17.156-11.113-27.82-30.742-27.82h-25.48V161.168h16.649V129.027h3.909l18.883 32.141zm-42.138-47.037V101.02h8.312c9.598 0 14.408 4.16 14.408 12.553c0 8.394-4.81 12.558-14.408 12.558z"/>
+        </svg>
+        Bootstrap
+      </p>
+      <p class="mb-3">
+        <a href="https://github.com/felixlindemann/TSW6Controller" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="align-text-bottom me-1">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+          github.com/felixlindemann/TSW6Controller
+        </a>
+      </p>
+      <div>
+        <img src="logo_Ole_TSW.svg" alt="Ole TSW Logo" style="max-height: 400px;" class="img-fluid" />
+      </div>
+    </div>
+  </footer>
