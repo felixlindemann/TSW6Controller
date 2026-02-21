@@ -1,0 +1,14 @@
+
+<div class="range-slider d-flex flex-column align-items-center">
+    <input
+        class="input-range"
+        orient="vertical"
+        type="range"
+        [min]="min"
+        [max]="max"
+        [step]="step"
+        [value]="value"
+        (input)="onValueChange($event)"
+    >
+    <span class="range-value mt-2">{{ value }}</span>
+</div>

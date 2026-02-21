@@ -1,0 +1,23 @@
+<div *ngIf="lever as l; else noLever" class="card">
+    <div class="card-header">
+        {{l.type}} - {{l.hardwareType}} (ID: {{l.id}})
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">{{l.notches.label}}</h5>
+        <p class="card-text">Controller: {{l.notches.controller}}</p>
+        
+            <div class="row">
+                <div class="col"><app-vertical-slider [(value)]="l.currentPercent" [min]="0" [max]="100" [step]="1"></app-vertical-slider></div>
+                <div class="col"><app-vertical-slider [(value)]="l.currentRaw" [min]="0" [max]="4096" [step]="1"></app-vertical-slider></div>
+            </div>
+        
+        
+        <p class="card-text">Value: raw {{l.currentRaw}} / {{l.currentPercent}}%</p>
+        <p class="card-text">Richtung invertiert: {{l.inverted}}</p>
+        <p class="card-text">Hardware-Pin: {{l.pin}}</p>
+        <a href="#" class="btn btn-primary">Configure</a>
+    </div>
+</div>
+<ng-template #noLever>
+  <div class="alert alert-warning">Kein TSW.Control gefunden</div>
+</ng-template>

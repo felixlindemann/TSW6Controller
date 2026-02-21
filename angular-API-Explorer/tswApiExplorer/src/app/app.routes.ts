@@ -5,6 +5,7 @@ import { ServerConfigEditorComponent } from './server-config-editor/server-confi
 import { DnsConfigEditorComponent } from './device-config-editor';
 import { LandingPageComponent } from './landing-page/landing-page.component';
 import { WindowsFirewallComponent } from './windows-firewall/windows-firewall.component'; 
+import { StandardLayoutComponent } from './standard-layout/standard-layout.component';
 import { EnableTsw6ApiAccessPsComponent } from './windows-firewall/enable-tsw6-api-access-ps/enable-tsw6-api-access-ps.component';
 import { EnableTsw6ApiAccessCmdComponent } from './windows-firewall/enable-tsw6-api-access-cmd/enable-tsw6-api-access-cmd.component';
 import { DisableTsw6ApiAccessPsComponent } from './windows-firewall/disable-tsw6-api-access-ps/disable-tsw6-api-access-ps.component';
@@ -31,6 +32,7 @@ export const routes: Routes = [
 
   // WifiConfig Editor
   { path: 'wifi-config', component: WifiConfigEditorComponent },
+  { path: 'standard-layout', component: StandardLayoutComponent },
   
   // WifiConfig Editor
   { 

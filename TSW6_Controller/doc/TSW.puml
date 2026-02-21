@@ -161,12 +161,14 @@ package "TSW Layer" as tsw <<Rectangle>> {
      ======================== '/
 
   abstract class TSWControl {
+    # id : String
     # notches : NotchTable
     # spider : TSWSpider*
     # lastSentValue : float
     --
-    + TSWControl(ctrl, spider)
+    + TSWControl(id, ctrl, spider)
     + loadNotches(filePath) : void
+    + getId() : String
     + getControllerName() : String
     + setControllerName(ctrl) : void
     + {abstract} getControlType() : String

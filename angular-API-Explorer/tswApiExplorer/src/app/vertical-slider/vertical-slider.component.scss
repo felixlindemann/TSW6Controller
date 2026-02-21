@@ -1,0 +1,16 @@
+// ...existing code...
+.input-range {
+  writing-mode: bt-lr;
+  -webkit-appearance: slider-vertical;
+  height: 200px;
+}
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+  padding: 40px;
+}
